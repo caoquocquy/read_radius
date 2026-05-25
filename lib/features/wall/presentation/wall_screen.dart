@@ -172,11 +172,6 @@ class _WallScreenState extends ConsumerState<WallScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _handleProtectedAction(state),
-        label: const Text('Protected Action'),
-        icon: const Icon(Icons.lock_outline),
-      ),
     );
   }
 }
