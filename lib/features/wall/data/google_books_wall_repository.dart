@@ -103,7 +103,7 @@ class GoogleBooksWallRepository implements WallRepository {
       id: id,
       title: title,
       authors: authors,
-      thumbnailUrl: thumbnailUrl,
+      thumbnailUrl: thumbnailUrl?.replaceFirst('http://', 'https://'),
     );
   }
 }

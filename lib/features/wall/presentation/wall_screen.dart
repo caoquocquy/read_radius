@@ -21,6 +21,25 @@ class WallScreen extends ConsumerStatefulWidget {
 class _WallScreenState extends ConsumerState<WallScreen> {
   Timer? _debounce;
 
+  Widget _buildThumbnail(String? thumbnailUrl) {
+    if (thumbnailUrl == null || thumbnailUrl.isEmpty) {
+      return const _BookThumbnailPlaceholder();
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: Image.network(
+        thumbnailUrl,
+        width: 44,
+        height: 64,
+        fit: BoxFit.cover,
+        errorBuilder: (BuildContext context, Object error, StackTrace? _) {
+          return const _BookThumbnailPlaceholder();
+        },
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -55,6 +74,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
 
         return Card(
           child: ListTile(
+            leading: _buildThumbnail(book.thumbnailUrl),
             title: Text(book.title),
             subtitle: Text(subtitle),
             trailing: FilledButton.tonal(
@@ -171,6 +191,27 @@ class _WallScreenState extends ConsumerState<WallScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _BookThumbnailPlaceholder extends StatelessWidget {
+  const _BookThumbnailPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 64,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Icon(
+        Icons.menu_book_rounded,
+        size: 20,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
