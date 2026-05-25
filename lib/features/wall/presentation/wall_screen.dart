@@ -18,6 +18,7 @@ class WallScreen extends ConsumerStatefulWidget {
   static const String routeName = 'wall-screen';
   static const String routePath = '/wall';
   static const bool enableTrendingBooks = false;
+  static const bool enableThumbnail = false;
 
   @override
   ConsumerState<WallScreen> createState() => _WallScreenState();
@@ -177,6 +178,8 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                                       child: WallBooksCollection(
                                         books: books,
                                         viewMode: viewMode,
+                                        enableThumbnail:
+                                            WallScreen.enableThumbnail,
                                         onAddPressed: () {
                                           _handleProtectedAction(state);
                                         },
@@ -203,6 +206,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                                   child: WallBooksCollection(
                                     books: const <WallBook>[],
                                     viewMode: viewMode,
+                                    enableThumbnail: WallScreen.enableThumbnail,
                                     onAddPressed: () {
                                       _handleProtectedAction(state);
                                     },
@@ -221,6 +225,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                           return WallBooksCollection(
                             books: books,
                             viewMode: viewMode,
+                            enableThumbnail: WallScreen.enableThumbnail,
                             onAddPressed: () {
                               _handleProtectedAction(state);
                             },

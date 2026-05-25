@@ -8,12 +8,14 @@ class WallBooksCollection extends StatelessWidget {
     required this.books,
     required this.viewMode,
     required this.onAddPressed,
+    this.enableThumbnail = true,
     super.key,
   });
 
   final List<WallBook> books;
   final WallBooksViewMode viewMode;
   final VoidCallback onAddPressed;
+  final bool enableThumbnail;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,10 @@ class WallBooksCollection extends StatelessWidget {
 
           return Card(
             child: ListTile(
-              leading: _BookThumbnail(url: book.thumbnailUrl),
+              leading: _BookThumbnail(
+                url: book.thumbnailUrl,
+                enabled: enableThumbnail,
+              ),
               title: Text(book.title),
               subtitle: Text(subtitle),
               trailing: FilledButton.tonal(
@@ -82,7 +87,10 @@ class WallBooksCollection extends StatelessWidget {
                       child: SizedBox(
                         width: 72,
                         height: 104,
-                        child: _BookThumbnail(url: book.thumbnailUrl),
+                        child: _BookThumbnail(
+                          url: book.thumbnailUrl,
+                          enabled: enableThumbnail,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -116,13 +124,14 @@ class WallBooksCollection extends StatelessWidget {
 }
 
 class _BookThumbnail extends StatelessWidget {
-  const _BookThumbnail({required this.url});
+  const _BookThumbnail({required this.url, required this.enabled});
 
   final String? url;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    if (url == null || url!.isEmpty) {
+    if (!enabled || url == null || url!.isEmpty) {
       return const _BookThumbnailPlaceholder();
     }
 
