@@ -6,6 +6,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'wall_providers.g.dart';
 
+enum WallBooksViewMode { grid, list }
+
 @riverpod
 http.Client wallHttpClient(Ref ref) {
   final http.Client client = http.Client();
@@ -28,6 +30,16 @@ class WallSearchQuery extends _$WallSearchQuery {
 
   void setQuery(String value) {
     state = value.trim();
+  }
+}
+
+@riverpod
+class WallViewMode extends _$WallViewMode {
+  @override
+  WallBooksViewMode build() => WallBooksViewMode.grid;
+
+  void setMode(WallBooksViewMode mode) {
+    state = mode;
   }
 }
 

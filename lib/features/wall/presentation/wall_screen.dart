@@ -63,6 +63,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
 
   Widget _buildBooksList(List<WallBook> books, AuthSessionState state) {
     return ListView.separated(
+      key: const Key('wall-list-view'),
       itemCount: books.length,
       separatorBuilder: (BuildContext context, int index) =>
           const SizedBox(height: 8),
@@ -87,6 +88,89 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     );
   }
 
+  Widget _buildBooksGrid(List<WallBook> books, AuthSessionState state) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double width = constraints.maxWidth;
+        final int crossAxisCount = width >= 900
+            ? 5
+            : width >= 700
+            ? 4
+            : width >= 500
+            ? 3
+            : 2;
+
+        return GridView.builder(
+          key: const Key('wall-grid-view'),
+          itemCount: books.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 0.54,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            final WallBook book = books[index];
+            final String subtitle = book.authors.isEmpty
+                ? 'Unknown author'
+                : book.authors.join(', ');
+
+            return Card(
+              clipBehavior: Clip.antiAlias,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: 72,
+                        height: 104,
+                        child: _buildThumbnail(book.thumbnailUrl),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      book.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const Spacer(),
+                    FilledButton.tonal(
+                      onPressed: () => _handleProtectedAction(state),
+                      child: const Text('Add'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildBooksCollection(
+    List<WallBook> books,
+    AuthSessionState state,
+    WallBooksViewMode viewMode,
+  ) {
+    if (viewMode == WallBooksViewMode.list) {
+      return _buildBooksList(books, state);
+    }
+
+    return _buildBooksGrid(books, state);
+  }
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<AuthSessionState> session = ref.watch(authSessionProvider);
@@ -101,6 +185,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     final AsyncValue<List<WallBook>> trending = ref.watch(
       wallTrendingResultsProvider,
     );
+    final WallBooksViewMode viewMode = ref.watch(wallViewModeProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('BookRadius')),
@@ -131,6 +216,32 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                 },
               ),
               const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: SegmentedButton<WallBooksViewMode>(
+                  segments: const <ButtonSegment<WallBooksViewMode>>[
+                    ButtonSegment<WallBooksViewMode>(
+                      value: WallBooksViewMode.grid,
+                      icon: Icon(Icons.grid_view_rounded),
+                      label: Text('Grid'),
+                    ),
+                    ButtonSegment<WallBooksViewMode>(
+                      value: WallBooksViewMode.list,
+                      icon: Icon(Icons.view_list_rounded),
+                      label: Text('List'),
+                    ),
+                  ],
+                  selected: <WallBooksViewMode>{viewMode},
+                  onSelectionChanged: (Set<WallBooksViewMode> selection) {
+                    final WallBooksViewMode? selected = selection.firstOrNull;
+                    if (selected != null) {
+                      ref.read(wallViewModeProvider.notifier).setMode(selected);
+                    }
+                  },
+                  showSelectedIcon: false,
+                ),
+              ),
+              const SizedBox(height: 12),
               Expanded(
                 child: query.isEmpty
                     ? trending.when(
@@ -152,7 +263,13 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Expanded(child: _buildBooksList(books, state)),
+                              Expanded(
+                                child: _buildBooksCollection(
+                                  books,
+                                  state,
+                                  viewMode,
+                                ),
+                              ),
                             ],
                           );
                         },
@@ -170,7 +287,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                             );
                           }
 
-                          return _buildBooksList(books, state);
+                          return _buildBooksCollection(books, state, viewMode);
                         },
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),

@@ -143,6 +143,58 @@ abstract class _$WallSearchQuery extends $Notifier<String> {
   }
 }
 
+@ProviderFor(WallViewMode)
+final wallViewModeProvider = WallViewModeProvider._();
+
+final class WallViewModeProvider
+    extends $NotifierProvider<WallViewMode, WallBooksViewMode> {
+  WallViewModeProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wallViewModeProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallViewModeHash();
+
+  @$internal
+  @override
+  WallViewMode create() => WallViewMode();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WallBooksViewMode value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WallBooksViewMode>(value),
+    );
+  }
+}
+
+String _$wallViewModeHash() => r'2a132700724c9b9f60408da9f45d0fa2e2cf6699';
+
+abstract class _$WallViewMode extends $Notifier<WallBooksViewMode> {
+  WallBooksViewMode build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<WallBooksViewMode, WallBooksViewMode>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<WallBooksViewMode, WallBooksViewMode>,
+              WallBooksViewMode,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(wallSearchResults)
 final wallSearchResultsProvider = WallSearchResultsProvider._();
 
