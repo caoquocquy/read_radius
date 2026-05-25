@@ -4,6 +4,8 @@ import 'package:book_radius/features/auth/domain/auth_session_state.dart';
 import 'package:book_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:book_radius/features/auth/providers/auth_providers.dart';
 import 'package:book_radius/features/wall/domain/wall_book.dart';
+import 'package:book_radius/features/wall/presentation/widgets/wall_books_collection.dart';
+import 'package:book_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
 import 'package:book_radius/features/wall/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,25 +22,6 @@ class WallScreen extends ConsumerStatefulWidget {
 
 class _WallScreenState extends ConsumerState<WallScreen> {
   Timer? _debounce;
-
-  Widget _buildThumbnail(String? thumbnailUrl) {
-    if (thumbnailUrl == null || thumbnailUrl.isEmpty) {
-      return const _BookThumbnailPlaceholder();
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: Image.network(
-        thumbnailUrl,
-        width: 44,
-        height: 64,
-        fit: BoxFit.cover,
-        errorBuilder: (BuildContext context, Object error, StackTrace? _) {
-          return const _BookThumbnailPlaceholder();
-        },
-      ),
-    );
-  }
 
   @override
   void dispose() {
@@ -59,116 +42,6 @@ class _WallScreenState extends ConsumerState<WallScreen> {
       isScrollControlled: true,
       builder: (_) => const AuthGuardSheet(),
     );
-  }
-
-  Widget _buildBooksList(List<WallBook> books, AuthSessionState state) {
-    return ListView.separated(
-      key: const Key('wall-list-view'),
-      itemCount: books.length,
-      separatorBuilder: (BuildContext context, int index) =>
-          const SizedBox(height: 8),
-      itemBuilder: (BuildContext context, int index) {
-        final WallBook book = books[index];
-        final String subtitle = book.authors.isEmpty
-            ? 'Unknown author'
-            : book.authors.join(', ');
-
-        return Card(
-          child: ListTile(
-            leading: _buildThumbnail(book.thumbnailUrl),
-            title: Text(book.title),
-            subtitle: Text(subtitle),
-            trailing: FilledButton.tonal(
-              onPressed: () => _handleProtectedAction(state),
-              child: const Text('Add'),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBooksGrid(List<WallBook> books, AuthSessionState state) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final double width = constraints.maxWidth;
-        final int crossAxisCount = width >= 900
-            ? 5
-            : width >= 700
-            ? 4
-            : width >= 500
-            ? 3
-            : 2;
-
-        return GridView.builder(
-          key: const Key('wall-grid-view'),
-          itemCount: books.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 0.54,
-          ),
-          itemBuilder: (BuildContext context, int index) {
-            final WallBook book = books[index];
-            final String subtitle = book.authors.isEmpty
-                ? 'Unknown author'
-                : book.authors.join(', ');
-
-            return Card(
-              clipBehavior: Clip.antiAlias,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 72,
-                        height: 104,
-                        child: _buildThumbnail(book.thumbnailUrl),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      book.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const Spacer(),
-                    FilledButton.tonal(
-                      onPressed: () => _handleProtectedAction(state),
-                      child: const Text('Add'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildBooksCollection(
-    List<WallBook> books,
-    AuthSessionState state,
-    WallBooksViewMode viewMode,
-  ) {
-    if (viewMode == WallBooksViewMode.list) {
-      return _buildBooksList(books, state);
-    }
-
-    return _buildBooksGrid(books, state);
   }
 
   @override
@@ -216,30 +89,11 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                 },
               ),
               const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: SegmentedButton<WallBooksViewMode>(
-                  segments: const <ButtonSegment<WallBooksViewMode>>[
-                    ButtonSegment<WallBooksViewMode>(
-                      value: WallBooksViewMode.grid,
-                      icon: Icon(Icons.grid_view_rounded),
-                      label: Text('Grid'),
-                    ),
-                    ButtonSegment<WallBooksViewMode>(
-                      value: WallBooksViewMode.list,
-                      icon: Icon(Icons.view_list_rounded),
-                      label: Text('List'),
-                    ),
-                  ],
-                  selected: <WallBooksViewMode>{viewMode},
-                  onSelectionChanged: (Set<WallBooksViewMode> selection) {
-                    final WallBooksViewMode? selected = selection.firstOrNull;
-                    if (selected != null) {
-                      ref.read(wallViewModeProvider.notifier).setMode(selected);
-                    }
-                  },
-                  showSelectedIcon: false,
-                ),
+              WallViewModeToggle(
+                mode: viewMode,
+                onModeSelected: (WallBooksViewMode selected) {
+                  ref.read(wallViewModeProvider.notifier).setMode(selected);
+                },
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -264,10 +118,12 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                               ),
                               const SizedBox(height: 8),
                               Expanded(
-                                child: _buildBooksCollection(
-                                  books,
-                                  state,
-                                  viewMode,
+                                child: WallBooksCollection(
+                                  books: books,
+                                  viewMode: viewMode,
+                                  onAddPressed: () {
+                                    _handleProtectedAction(state);
+                                  },
                                 ),
                               ),
                             ],
@@ -287,7 +143,13 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                             );
                           }
 
-                          return _buildBooksCollection(books, state, viewMode);
+                          return WallBooksCollection(
+                            books: books,
+                            viewMode: viewMode,
+                            onAddPressed: () {
+                              _handleProtectedAction(state);
+                            },
+                          );
                         },
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),
@@ -308,27 +170,6 @@ class _WallScreenState extends ConsumerState<WallScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BookThumbnailPlaceholder extends StatelessWidget {
-  const _BookThumbnailPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 44,
-      height: 64,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Icon(
-        Icons.menu_book_rounded,
-        size: 20,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
