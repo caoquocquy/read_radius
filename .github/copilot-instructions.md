@@ -14,3 +14,12 @@ Build a Flutter + Firebase book tracking app using Riverpod codegen and GoRouter
 - Riverpod style: use generated providers for app state; `StateProvider` only for small ephemeral UI state.
 - Async/error handling: use `async/await`, explicit loading/error/data states, and do not swallow exceptions.
 - Quality gate: run `flutter analyze` and impacted `flutter test`; behavior changes must include tests.
+
+## Data and Database Design Constraints
+1. Unauthenticated Public Views: Guest users can access the app without a login wall. They can search books, view book profiles, and read reviews.
+2. Protected Actions: Writing reviews or adding books to shelves requires authentication. Trigger an elegant `AuthGuard` bottom sheet prompt to Continue with Facebook if a guest tries these actions.
+3. Firestore Collections:
+	- `/users/{userId}`: Profiles.
+	- `/books/{bookId}`: Created only when a book is first shelved or reviewed. Uses Google Books API ID as the document ID.
+	- `/reviews/{reviewId}`: Root collection containing `bookId` and `userId` for quick querying.
+	- `/userBooks/{userId_bookId}`: Composite ID documents managing user reading statuses (`want_to_read`, `reading`, `completed`).
