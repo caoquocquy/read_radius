@@ -1,6 +1,7 @@
 import 'package:read_radius/features/auth/data/firebase_auth_repository.dart';
 import 'package:read_radius/features/auth/domain/auth_repository.dart';
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_providers.g.dart';
@@ -15,6 +16,12 @@ Stream<AuthSessionState> authSession(Ref ref) {
   final AuthRepository repo = ref.watch(authRepositoryProvider);
   return repo.authStateChanges();
 }
+
+final StreamProvider<String?> authUserPhotoUrlProvider =
+    StreamProvider.autoDispose<String?>((Ref ref) {
+      final AuthRepository repo = ref.watch(authRepositoryProvider);
+      return repo.userPhotoUrlChanges();
+    });
 
 @riverpod
 class AuthController extends _$AuthController {

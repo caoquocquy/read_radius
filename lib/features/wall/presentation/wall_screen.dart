@@ -15,6 +15,7 @@ class WallScreen extends ConsumerStatefulWidget {
 
   static const String routeName = 'wall-screen';
   static const String routePath = '/wall';
+  static const bool enableTrendingBooks = false;
 
   @override
   ConsumerState<WallScreen> createState() => _WallScreenState();
@@ -22,6 +23,14 @@ class WallScreen extends ConsumerStatefulWidget {
 
 class _WallScreenState extends ConsumerState<WallScreen> {
   Timer? _debounce;
+
+  Future<void> _showAuthGuardSheet() {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => const AuthGuardSheet(),
+    );
+  }
 
   @override
   void dispose() {
@@ -37,16 +46,13 @@ class _WallScreenState extends ConsumerState<WallScreen> {
       return;
     }
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => const AuthGuardSheet(),
-    );
+    await _showAuthGuardSheet();
   }
 
   @override
   Widget build(BuildContext context) {
     final AsyncValue<AuthSessionState> session = ref.watch(authSessionProvider);
+    final AsyncValue<String?> photoUrl = ref.watch(authUserPhotoUrlProvider);
     final AuthSessionState state = session.maybeWhen(
       data: (AuthSessionState value) => value,
       orElse: () => AuthSessionState.guest,
@@ -55,13 +61,57 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     final AsyncValue<List<WallBook>> search = ref.watch(
       wallSearchResultsProvider,
     );
-    final AsyncValue<List<WallBook>> trending = ref.watch(
-      wallTrendingResultsProvider,
-    );
+    final AsyncValue<List<WallBook>>? trending = WallScreen.enableTrendingBooks
+        ? ref.watch(wallTrendingResultsProvider)
+        : null;
     final WallBooksViewMode viewMode = ref.watch(wallViewModeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ReadRadius')),
+      appBar: AppBar(
+        leadingWidth: 52,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () {
+                if (state == AuthSessionState.guest) {
+                  _showAuthGuardSheet();
+                }
+              },
+              child: photoUrl.when(
+                data: (String? value) {
+                  final String? trimmed = value?.trim();
+                  if (trimmed == null || trimmed.isEmpty) {
+                    return const CircleAvatar(
+                      radius: 16,
+                      child: Icon(Icons.person, size: 18),
+                    );
+                  }
+
+                  return CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage(trimmed),
+                  );
+                },
+                loading: () => const CircleAvatar(
+                  radius: 16,
+                  child: SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+                error: (_, _) => const CircleAvatar(
+                  radius: 16,
+                  child: Icon(Icons.person, size: 18),
+                ),
+              ),
+            ),
+          ),
+        ),
+        title: const Text('ReadRadius'),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -98,43 +148,63 @@ class _WallScreenState extends ConsumerState<WallScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: query.isEmpty
-                    ? trending.when(
-                        data: (List<WallBook> books) {
-                          if (books.isEmpty) {
-                            return const Center(
-                              child: Text('No trending books right now.'),
-                            );
-                          }
+                    ? WallScreen.enableTrendingBooks
+                          ? trending!.when(
+                              data: (List<WallBook> books) {
+                                if (books.isEmpty) {
+                                  return const Center(
+                                    child: Text('No trending books right now.'),
+                                  );
+                                }
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              const Text(
-                                'Trending now',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    const Text(
+                                      'Trending now',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Expanded(
+                                      child: WallBooksCollection(
+                                        books: books,
+                                        viewMode: viewMode,
+                                        onAddPressed: () {
+                                          _handleProtectedAction(state);
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                              loading: () => const Center(
+                                child: CircularProgressIndicator(),
                               ),
-                              const SizedBox(height: 8),
-                              Expanded(
-                                child: WallBooksCollection(
-                                  books: books,
-                                  viewMode: viewMode,
-                                  onAddPressed: () {
-                                    _handleProtectedAction(state);
-                                  },
+                              error: (Object error, StackTrace stackTrace) {
+                                return Center(
+                                  child: Text('Trending failed: $error'),
+                                );
+                              },
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                const Text('Trending is temporarily disabled.'),
+                                const SizedBox(height: 8),
+                                Expanded(
+                                  child: WallBooksCollection(
+                                    books: const <WallBook>[],
+                                    viewMode: viewMode,
+                                    onAddPressed: () {
+                                      _handleProtectedAction(state);
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                        loading: () =>
-                            const Center(child: CircularProgressIndicator()),
-                        error: (Object error, StackTrace stackTrace) {
-                          return Center(child: Text('Trending failed: $error'));
-                        },
-                      )
+                              ],
+                            )
                     : search.when(
                         data: (List<WallBook> books) {
                           if (books.isEmpty) {
