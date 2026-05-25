@@ -1,6 +1,6 @@
-import 'package:book_radius/features/auth/data/firebase_auth_repository.dart';
-import 'package:book_radius/features/auth/domain/auth_repository.dart';
-import 'package:book_radius/features/auth/domain/auth_session_state.dart';
+import 'package:read_radius/features/auth/data/firebase_auth_repository.dart';
+import 'package:read_radius/features/auth/domain/auth_repository.dart';
+import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_providers.g.dart';

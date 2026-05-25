@@ -1,6 +1,6 @@
-import 'package:book_radius/features/wall/data/google_books_wall_repository.dart';
-import 'package:book_radius/features/wall/domain/wall_book.dart';
-import 'package:book_radius/features/wall/domain/wall_repository.dart';
+import 'package:read_radius/features/wall/data/google_books_wall_repository.dart';
+import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/domain/wall_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

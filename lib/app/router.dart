@@ -1,5 +1,5 @@
-import 'package:book_radius/features/wall/presentation/wall_screen.dart';
-import 'package:book_radius/features/splash/presentation/splash_screen.dart';
+import 'package:read_radius/features/wall/presentation/wall_screen.dart';
+import 'package:read_radius/features/splash/presentation/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(

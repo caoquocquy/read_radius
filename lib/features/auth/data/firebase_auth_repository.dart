@@ -1,6 +1,6 @@
-import 'package:book_radius/features/auth/domain/auth_failure.dart';
-import 'package:book_radius/features/auth/domain/auth_repository.dart';
-import 'package:book_radius/features/auth/domain/auth_session_state.dart';
+import 'package:read_radius/features/auth/domain/auth_failure.dart';
+import 'package:read_radius/features/auth/domain/auth_repository.dart';
+import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 

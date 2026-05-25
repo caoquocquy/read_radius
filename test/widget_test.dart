@@ -1,13 +1,13 @@
-import 'package:book_radius/features/auth/domain/auth_session_state.dart';
-import 'package:book_radius/features/auth/providers/auth_providers.dart';
-import 'package:book_radius/core/providers/startup_provider.dart';
-import 'package:book_radius/features/wall/domain/wall_book.dart';
-import 'package:book_radius/features/wall/providers/wall_providers.dart';
+import 'package:read_radius/features/auth/domain/auth_session_state.dart';
+import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/core/providers/startup_provider.dart';
+import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:book_radius/app/app.dart';
+import 'package:read_radius/app/app.dart';
 
 void main() {
   testWidgets('ReadRadius app shell renders wall search prompt', (

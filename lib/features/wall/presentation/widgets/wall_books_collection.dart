@@ -1,5 +1,5 @@
-import 'package:book_radius/features/wall/domain/wall_book.dart';
-import 'package:book_radius/features/wall/providers/wall_providers.dart';
+import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 
 class WallBooksCollection extends StatelessWidget {

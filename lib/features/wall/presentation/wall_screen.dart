@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:book_radius/features/auth/domain/auth_session_state.dart';
-import 'package:book_radius/features/auth/presentation/auth_guard_sheet.dart';
-import 'package:book_radius/features/auth/providers/auth_providers.dart';
-import 'package:book_radius/features/wall/domain/wall_book.dart';
-import 'package:book_radius/features/wall/presentation/widgets/wall_books_collection.dart';
-import 'package:book_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
-import 'package:book_radius/features/wall/providers/wall_providers.dart';
+import 'package:read_radius/features/auth/domain/auth_session_state.dart';
+import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
+import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/presentation/widgets/wall_books_collection.dart';
+import 'package:read_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
+import 'package:read_radius/features/wall/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

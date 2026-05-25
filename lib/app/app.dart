@@ -1,5 +1,5 @@
-import 'package:book_radius/app/router.dart';
-import 'package:book_radius/core/theme/app_theme.dart';
+import 'package:read_radius/app/router.dart';
+import 'package:read_radius/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class ReadRadiusApp extends StatelessWidget {

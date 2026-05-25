@@ -1,4 +1,4 @@
-package com.quycao.bookradius.book_radius
+package com.quycao.readradius.read_radius
 
 import io.flutter.embedding.android.FlutterActivity
 

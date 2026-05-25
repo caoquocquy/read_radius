@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:book_radius/features/wall/domain/wall_book.dart';
-import 'package:book_radius/features/wall/domain/wall_repository.dart';
+import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/domain/wall_repository.dart';
 import 'package:http/http.dart' as http;
 
 class GoogleBooksWallRepository implements WallRepository {
