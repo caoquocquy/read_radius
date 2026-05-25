@@ -15,3 +15,13 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Known iOS warning
+
+When running on iOS, Flutter may print this warning:
+
+"The following plugins do not support Swift Package Manager for ios:
+	- flutter_facebook_auth"
+
+This project currently uses CocoaPods for iOS dependencies, so this is a non-blocking warning.
+The app can still build and run normally.
