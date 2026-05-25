@@ -25,3 +25,15 @@ When running on iOS, Flutter may print this warning:
 
 This project currently uses CocoaPods for iOS dependencies, so this is a non-blocking warning.
 The app can still build and run normally.
+
+## iOS Facebook Login Configuration
+
+Facebook login on iOS requires these keys in [ios/Runner/Info.plist](ios/Runner/Info.plist):
+
+- `FacebookAppID`
+- `FacebookClientToken`
+- `FacebookDisplayName`
+- `CFBundleURLTypes -> CFBundleURLSchemes` containing `fb<FACEBOOK_APP_ID>`
+- `LSApplicationQueriesSchemes` containing `fbapi`, `fb-messenger-share-api`, `fbauth2`, `fbshareextension`
+
+If these values are missing, the Facebook SDK can terminate the app at runtime during login.

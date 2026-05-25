@@ -11,37 +11,57 @@ class AuthGuardSheet extends ConsumerStatefulWidget {
 
 class _AuthGuardSheetState extends ConsumerState<AuthGuardSheet> {
   bool _didRequestLogin = false;
+  late final ProviderSubscription<AsyncValue<void>> _authControllerSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _authControllerSub = ref.listenManual<AsyncValue<void>>(
+      authControllerProvider,
+      (previous, next) {
+        if (!_didRequestLogin) {
+          return;
+        }
+
+        if (previous?.isLoading != true) {
+          return;
+        }
+
+        if (next.hasValue) {
+          _didRequestLogin = false;
+          if (!mounted) {
+            return;
+          }
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Signed in with Facebook.')),
+          );
+          return;
+        }
+
+        next.whenOrNull(
+          error: (error, _) {
+            _didRequestLogin = false;
+            if (!mounted) {
+              return;
+            }
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(error.toString())));
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _authControllerSub.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authControllerProvider, (previous, next) {
-      if (!_didRequestLogin) {
-        return;
-      }
-
-      if (previous?.isLoading != true) {
-        return;
-      }
-
-      if (next.hasValue) {
-        _didRequestLogin = false;
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed in with Facebook.')),
-        );
-        return;
-      }
-
-      next.whenOrNull(
-        error: (error, _) {
-          _didRequestLogin = false;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error.toString())));
-        },
-      );
-    });
-
     final AsyncValue<void> state = ref.watch(authControllerProvider);
     final bool isLoading = state.isLoading;
 
