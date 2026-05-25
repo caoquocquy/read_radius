@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
 import 'package:read_radius/features/wall/presentation/widgets/wall_books_collection.dart';
 import 'package:read_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
 import 'package:read_radius/features/wall/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class WallScreen extends ConsumerStatefulWidget {
   const WallScreen({super.key});
@@ -77,7 +79,10 @@ class _WallScreenState extends ConsumerState<WallScreen> {
               onTap: () {
                 if (state == AuthSessionState.guest) {
                   _showAuthGuardSheet();
+                  return;
                 }
+
+                context.pushNamed(ProfileScreen.routeName);
               },
               child: photoUrl.when(
                 data: (String? value) {
@@ -228,15 +233,6 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                         },
                       ),
               ),
-              if (state == AuthSessionState.authenticated)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () =>
-                        ref.read(authControllerProvider.notifier).signOut(),
-                    child: const Text('Sign out'),
-                  ),
-                ),
             ],
           ),
         ),

@@ -12,6 +12,7 @@ Follow a feature-first approach. Code should be clean, modular, and split into t
 - `lib/core/`: Common themes, network clients, constants, utilities.
 - `lib/features/auth/`: Facebook authentication widgets, services, and Riverpod providers.
 - `lib/features/wall/`: Public search UI, Google Books API client, book grids.
+- `lib/features/profile/`: Profile/account surfaces such as the profile screen and sign-out action.
 - `lib/features/shelves/`: Managing user book statuses (Want to Read, Reading, Completed).
 - `lib/features/reviews/`: Review grids, writing reviews, star ratings.
 - `lib/features/friends/`: Social features and friend activity streams.
@@ -37,6 +38,11 @@ Layer boundaries must be enforced:
    - `/userBooks/{userId_bookId}` writes are owner-only and must match the authenticated user.
    - `/reviews/{reviewId}` create, update, and delete are owner-only; public reads are allowed.
    - Deny all writes when unauthenticated.
+
+## UX Behavior Constraints
+- Keep protected write actions (shelf mutations, reviews) behind `AuthGuardSheet` for guests.
+- Keep sign-out in the Profile screen under `lib/features/profile/`, not inline in wall/feed screens.
+- Avatar entry behavior: guest users should be prompted to authenticate; authenticated users may navigate to Profile.
 
 ## Code Generation & Style Guidelines
 - **Riverpod**: Always use `@riverpod` on classes extending `_$ClassName` or functions for app/business state. Avoid `ChangeNotifierProvider`. `StateProvider` is allowed only for simple ephemeral UI-only state.
