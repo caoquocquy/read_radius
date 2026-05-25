@@ -7,6 +7,10 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository(this._firebaseAuth, this._facebookAuth);
 
+  factory FirebaseAuthRepository.create() {
+    return FirebaseAuthRepository(FirebaseAuth.instance, FacebookAuth.instance);
+  }
+
   final FirebaseAuth _firebaseAuth;
   final FacebookAuth _facebookAuth;
 

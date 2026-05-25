@@ -1,15 +1,13 @@
 import 'package:book_radius/features/auth/data/firebase_auth_repository.dart';
 import 'package:book_radius/features/auth/domain/auth_repository.dart';
 import 'package:book_radius/features/auth/domain/auth_session_state.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_providers.g.dart';
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  return FirebaseAuthRepository(FirebaseAuth.instance, FacebookAuth.instance);
+  return FirebaseAuthRepository.create();
 }
 
 @riverpod
