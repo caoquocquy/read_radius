@@ -44,25 +44,64 @@ class GoogleBooksWallRepository implements WallRepository {
   Future<List<WallBook>> _fetchBooks(
     Map<String, String> queryParameters,
   ) async {
+    final http.Response response = await _requestBooks(
+      queryParameters,
+      includeApiKey: apiKey.isNotEmpty,
+    );
+
+    if (response.statusCode == 400 && apiKey.isNotEmpty) {
+      final String loweredBody = response.body.toLowerCase();
+      final bool keyIssue =
+          loweredBody.contains('api_key_invalid') ||
+          loweredBody.contains('keyinvalid') ||
+          loweredBody.contains('apikey') ||
+          loweredBody.contains('api key');
+      if (keyIssue) {
+        final http.Response fallback = await _requestBooks(
+          queryParameters,
+          includeApiKey: false,
+        );
+        if (fallback.statusCode >= 200 && fallback.statusCode < 300) {
+          return _decodeBooks(fallback.body);
+        }
+
+        throw Exception(_buildHttpErrorMessage(fallback));
+      }
+    }
+
+    if (response.statusCode == 429 && apiKey.isNotEmpty) {
+      final http.Response fallback = await _requestBooks(
+        queryParameters,
+        includeApiKey: false,
+      );
+      if (fallback.statusCode >= 200 && fallback.statusCode < 300) {
+        return _decodeBooks(fallback.body);
+      }
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_buildHttpErrorMessage(response));
+    }
+
+    return _decodeBooks(response.body);
+  }
+
+  Future<http.Response> _requestBooks(
+    Map<String, String> queryParameters, {
+    required bool includeApiKey,
+  }) {
     final Uri uri = _baseUri.replace(
       queryParameters: <String, String>{
         ...queryParameters,
-        if (apiKey.isNotEmpty) 'key': apiKey,
+        if (includeApiKey) 'key': apiKey,
       },
     );
 
-    final http.Response response = await _httpClient.get(uri);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      if (response.statusCode == 429) {
-        throw Exception(
-          'Google Books quota exceeded. Add GOOGLE_BOOKS_API_KEY via --dart-define or increase API quota.',
-        );
-      }
+    return _httpClient.get(uri);
+  }
 
-      throw Exception('Google Books request failed (${response.statusCode}).');
-    }
-
-    final Object? decoded = jsonDecode(response.body);
+  List<WallBook> _decodeBooks(String responseBody) {
+    final Object? decoded = jsonDecode(responseBody);
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException(
         'Invalid response format from Google Books API.',
@@ -76,6 +115,42 @@ class GoogleBooksWallRepository implements WallRepository {
         .map(_mapBook)
         .whereType<WallBook>()
         .toList(growable: false);
+  }
+
+  String _buildHttpErrorMessage(http.Response response) {
+    if (response.statusCode == 429) {
+      return 'Google Books quota exceeded. Add GOOGLE_BOOKS_API_KEY via --dart-define or increase API quota.';
+    }
+
+    final String? apiMessage = _extractApiErrorMessage(response.body);
+    if (apiMessage != null && apiMessage.isNotEmpty) {
+      return 'Google Books request failed (${response.statusCode}): $apiMessage';
+    }
+
+    return 'Google Books request failed (${response.statusCode}).';
+  }
+
+  String? _extractApiErrorMessage(String responseBody) {
+    try {
+      final Object? decoded = jsonDecode(responseBody);
+      if (decoded is! Map<String, dynamic>) {
+        return null;
+      }
+
+      final Object? error = decoded['error'];
+      if (error is! Map<String, dynamic>) {
+        return null;
+      }
+
+      final Object? message = error['message'];
+      if (message is String && message.trim().isNotEmpty) {
+        return message.trim();
+      }
+    } catch (_) {
+      // Ignore parse failures and fall back to generic HTTP message.
+    }
+
+    return null;
   }
 
   WallBook? _mapBook(Map<String, dynamic> json) {
