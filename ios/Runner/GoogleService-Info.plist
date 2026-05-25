@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyA9dVXQ_kxSQfaQf1KishpuZ7NteYI90lU</string>
+	<string>AIzaSyBG1ba7RGkIVGDMLaH6pmnVhfK0I5_fgUk</string>
 	<key>GCM_SENDER_ID</key>
-	<string>418612163281</string>
+	<string>968070879831</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.quycao.bookradius</string>
+	<string>com.quycao.readradius</string>
 	<key>PROJECT_ID</key>
-	<string>bookradius</string>
+	<string>readradius-c499b</string>
 	<key>STORAGE_BUCKET</key>
-	<string>bookradius.firebasestorage.app</string>
+	<string>readradius-c499b.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:418612163281:ios:e2d2ceb2c2e03eee968bf0</string>
+	<string>1:968070879831:ios:4feec063e0e2f8e066a112</string>
 </dict>
 </plist>

@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "418612163281",
-    "project_id": "bookradius",
-    "storage_bucket": "bookradius.firebasestorage.app"
+    "project_number": "968070879831",
+    "project_id": "readradius-c499b",
+    "storage_bucket": "readradius-c499b.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:418612163281:android:78ed04264165cbeb968bf0",
+        "mobilesdk_app_id": "1:968070879831:android:be8849203029ed2966a112",
         "android_client_info": {
-          "package_name": "com.quycao.bookradius"
+          "package_name": "com.quycao.readradius"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCBo6ff5z7cx5Lvczja70F1AchwGAHATN4"
+          "current_key": "AIzaSyDRLurDGNdp70OOj6pj4tdQcb2yap47EEo"
         }
       ],
       "services": {
