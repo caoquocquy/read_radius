@@ -118,6 +118,12 @@ class _BookThumbnail extends StatelessWidget {
   const _BookThumbnail({required this.url});
 
   final String? url;
+  static const Map<String, String> _headers = <String, String>{
+    'User-Agent':
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+    'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+    'Referer': 'https://books.google.com/',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +138,9 @@ class _BookThumbnail extends StatelessWidget {
         width: 44,
         height: 64,
         fit: BoxFit.cover,
+        headers: _headers,
         errorBuilder: (BuildContext context, Object error, StackTrace? _) {
+          debugPrint('Thumbnail load failed for $url: $error');
           return const _BookThumbnailPlaceholder();
         },
       ),

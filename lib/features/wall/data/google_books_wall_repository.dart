@@ -13,6 +13,7 @@ class GoogleBooksWallRepository implements WallRepository {
   static final Uri _baseUri = Uri.parse(
     'https://www.googleapis.com/books/v1/volumes',
   );
+  static const String _maxResults = '10';
 
   @override
   Future<List<WallBook>> searchBooks(String query) async {
@@ -23,7 +24,7 @@ class GoogleBooksWallRepository implements WallRepository {
 
     return _fetchBooks(<String, String>{
       'q': normalizedQuery,
-      'maxResults': '20',
+      'maxResults': _maxResults,
       'printType': 'books',
     });
   }
@@ -35,7 +36,7 @@ class GoogleBooksWallRepository implements WallRepository {
       // Use a broad subject query for a dynamic, popular-feeling feed.
       'q': 'subject:fiction',
       'orderBy': 'newest',
-      'maxResults': '20',
+      'maxResults': _maxResults,
       'printType': 'books',
     });
   }
@@ -117,23 +118,8 @@ class GoogleBooksWallRepository implements WallRepository {
       return rawUrl.replaceFirst('http://', 'https://');
     }
 
-    final Map<String, List<String>> query = Map<String, List<String>>.from(
-      uri.queryParametersAll,
-    );
-
-    // Reduce variants that often fail by requesting a plain thumbnail URL.
-    query.remove('edge');
-    if (query.containsKey('zoom')) {
-      query['zoom'] = <String>['5'];
-    }
-
-    final Map<String, String> normalizedQuery = <String, String>{
-      for (final MapEntry<String, List<String>> entry in query.entries)
-        if (entry.value.isNotEmpty) entry.key: entry.value.first,
-    };
-
-    return uri
-        .replace(scheme: 'https', queryParameters: normalizedQuery)
-        .toString();
+    // Keep the original query/path intact and only force HTTPS.
+    // Rebuilding query parameters can drop/alter provider-specific values.
+    return uri.replace(scheme: 'https').toString();
   }
 }
