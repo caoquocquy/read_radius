@@ -13,20 +13,6 @@
 			],
 			"isBackground": true,
 			"group": "build"
-		},
-		{
-			"label": "Git: Stage Commit Push",
-			"type": "shell",
-			"command": "git add -A && (git diff --cached --quiet && echo 'No changes to commit.' || (git commit -m \"${input:gitCommitMessage}\" && git push origin main))",
-			"problemMatcher": []
-		}
-	],
-	"inputs": [
-		{
-			"id": "gitCommitMessage",
-			"type": "promptString",
-			"description": "Commit message",
-			"default": "chore: update changes"
 		}
 	]
 }
