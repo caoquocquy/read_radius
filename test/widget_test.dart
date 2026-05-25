@@ -61,4 +61,52 @@ void main() {
     expect(find.byIcon(Icons.grid_view_rounded), findsOneWidget);
     expect(find.byIcon(Icons.view_list_rounded), findsOneWidget);
   });
+
+  testWidgets('Wall toggles between grid and list views', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          startupProvider.overrideWith((Ref ref) async {}),
+          authSessionProvider.overrideWith(
+            (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
+          ),
+          wallTrendingResultsProvider.overrideWith(
+            (Ref ref) async => const <WallBook>[
+              WallBook(
+                id: 'book-1',
+                title: 'Sample Book 1',
+                authors: <String>['Author 1'],
+                thumbnailUrl: null,
+              ),
+              WallBook(
+                id: 'book-2',
+                title: 'Sample Book 2',
+                authors: <String>['Author 2'],
+                thumbnailUrl: null,
+              ),
+            ],
+          ),
+        ],
+        child: const BookRadiusApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('wall-grid-view')), findsOneWidget);
+    expect(find.byKey(const Key('wall-list-view')), findsNothing);
+
+    await tester.tap(find.text('List'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('wall-list-view')), findsOneWidget);
+    expect(find.byKey(const Key('wall-grid-view')), findsNothing);
+
+    await tester.tap(find.text('Grid'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('wall-grid-view')), findsOneWidget);
+    expect(find.byKey(const Key('wall-list-view')), findsNothing);
+  });
 }
