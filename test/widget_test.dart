@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_radius/app/app.dart';
 
 void main() {
-  testWidgets('BookRadius app shell renders wall search prompt', (
+  testWidgets('ReadRadius app shell renders wall search prompt', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -24,12 +24,12 @@ void main() {
             (Ref ref) async => <WallBook>[],
           ),
         ],
-        child: const BookRadiusApp(),
+        child: const ReadRadiusApp(),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('BookRadius'), findsOneWidget);
+    expect(find.text('ReadRadius'), findsOneWidget);
     expect(find.text('Search books on Google Books'), findsOneWidget);
   });
 
@@ -52,7 +52,7 @@ void main() {
             ],
           ),
         ],
-        child: const BookRadiusApp(),
+        child: const ReadRadiusApp(),
       ),
     );
     await tester.pumpAndSettle();
@@ -89,7 +89,7 @@ void main() {
             ],
           ),
         ],
-        child: const BookRadiusApp(),
+        child: const ReadRadiusApp(),
       ),
     );
     await tester.pumpAndSettle();

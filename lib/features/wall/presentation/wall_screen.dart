@@ -61,7 +61,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     final WallBooksViewMode viewMode = ref.watch(wallViewModeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('BookRadius')),
+      appBar: AppBar(title: const Text('ReadRadius')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),

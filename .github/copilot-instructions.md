@@ -1,4 +1,4 @@
-# BookRadius Copilot Instructions
+# ReadRadius Copilot Instructions
 
 ## Technology Stack & Constraints
 - **Framework**: Flutter (latest stable, Material 3 design system).
