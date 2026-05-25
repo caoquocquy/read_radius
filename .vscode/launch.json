@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--dart-define",
+        "GOOGLE_BOOKS_API_KEY=AIzaSyD-pZiQ7JT_Z0GShz67C7Gx6dad5Jzt82A"
+      ]
+    }
+  ]
+}

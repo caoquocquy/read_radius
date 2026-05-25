@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_radius/app/app.dart';
 
 void main() {
-  testWidgets('BookRadius app shell renders guest placeholder', (
+  testWidgets('BookRadius app shell renders wall search prompt', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -24,6 +24,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('BookRadius'), findsOneWidget);
-    expect(find.text('Wall (Day 1 Placeholder)'), findsOneWidget);
+    expect(find.text('Search books on Google Books'), findsOneWidget);
   });
 }
