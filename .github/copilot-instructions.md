@@ -45,6 +45,24 @@ Layer boundaries must be enforced:
 - **State Mutation**: Keep state immutable. Use copyWith patterns for data models.
 - **Error Handling**: Wrap all Firebase, authentication, and network API calls in clean `try-catch` blocks with user-friendly logs or UI snackbars.
 
+## File Length & Split Guidelines
+- Prefer small, focused files based on single responsibility, not strict line-count limits.
+- **Target file sizes**:
+   - Simple widget files: 100-250 lines.
+   - Complex screen files: keep under 300-400 lines when practical.
+   - Domain/data/service files: 150-300 lines.
+   - Generated files are exempt.
+- **Split a file when**:
+   - It has more than one responsibility.
+   - Build methods become deeply nested or hard to scan.
+   - UI blocks are repeated and can be extracted.
+   - Business logic is mixed into presentation code.
+   - The file becomes hard to review in one pass.
+- **Flutter + Riverpod practice**:
+   - Keep business logic in providers/use-cases, not inside widget build trees.
+   - Keep presentation/domain/data boundaries clear.
+   - Extract reusable widgets early to keep screens maintainable.
+
 ## Quality Gate for Every Change
 - Run `flutter analyze` and keep touched code free of analyzer errors.
 - Run `flutter test` for impacted areas before finishing.
