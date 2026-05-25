@@ -1,0 +1,1 @@
+enum AuthSessionState { guest, authenticated }
