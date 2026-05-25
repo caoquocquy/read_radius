@@ -26,21 +26,37 @@ final StreamProvider<String?> authUserPhotoUrlProvider =
 @riverpod
 class AuthController extends _$AuthController {
   @override
-  Future<void> build() async {}
+  Future<void> build() async {
+    ref.keepAlive();
+  }
 
   Future<void> continueWithFacebook() async {
+    if (!ref.mounted) {
+      return;
+    }
     state = const AsyncLoading<void>();
-    state = await AsyncValue.guard(() async {
+    final AsyncValue<void> nextState = await AsyncValue.guard(() async {
       final AuthRepository repo = ref.read(authRepositoryProvider);
       await repo.signInWithFacebook();
     });
+    if (!ref.mounted) {
+      return;
+    }
+    state = nextState;
   }
 
   Future<void> signOut() async {
+    if (!ref.mounted) {
+      return;
+    }
     state = const AsyncLoading<void>();
-    state = await AsyncValue.guard(() async {
+    final AsyncValue<void> nextState = await AsyncValue.guard(() async {
       final AuthRepository repo = ref.read(authRepositoryProvider);
       await repo.signOut();
     });
+    if (!ref.mounted) {
+      return;
+    }
+    state = nextState;
   }
 }
