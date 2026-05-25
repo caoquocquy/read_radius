@@ -15,7 +15,7 @@ Follow a feature-first approach. Code should be clean, modular, and split into t
 - `lib/features/profile/`: Profile/account surfaces such as the profile screen and sign-out action.
 - `lib/features/shelves/`: Managing user book statuses (Want to Read, Reading, Completed).
 - `lib/features/reviews/`: Review grids, writing reviews, star ratings.
-- `lib/features/friends/`: Social features and friend activity streams.
+- `lib/features/following/`: Social features and following/follower surfaces.
 
 Layer boundaries must be enforced:
 - Dependency direction is one-way only: `presentation -> domain -> data`.
@@ -32,11 +32,13 @@ Layer boundaries must be enforced:
    - `/books/{bookId}`: Created ONLY when a book is first shelved or reviewed. Uses Google Books API ID as the Document ID.
    - `/reviews/{reviewId}`: Root collection containing `bookId` and `userId` for quick querying.
    - `/userBooks/{userId_bookId}`: Composite ID documents managing user reading statuses (`want_to_read`, `reading`, `completed`).
+   - `/userFollows/{followerId_followeeId}`: Directed follow edges containing `followerId`, `followeeId`, `createdAt`, and optional `updatedAt`.
 4. **Firestore Security Rule Intent**:
    - Guests can read public browse content (`/books` and public review content) but cannot write user-owned records.
    - `/users/{userId}` writes are owner-only (`request.auth.uid == userId`).
    - `/userBooks/{userId_bookId}` writes are owner-only and must match the authenticated user.
    - `/reviews/{reviewId}` create, update, and delete are owner-only; public reads are allowed.
+   - `/userFollows/{followerId_followeeId}` create/delete are follower-only (`request.auth.uid == followerId`), updates are disallowed, and self-follow is denied.
    - Deny all writes when unauthenticated.
 
 ## UX Behavior Constraints

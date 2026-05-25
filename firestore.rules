@@ -17,6 +17,24 @@ service cloud.firestore {
       return isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
+    function followCreateIsValid() {
+      return isSignedIn()
+        && request.resource.data.followerId == request.auth.uid
+        && request.resource.data.followerId is string
+        && request.resource.data.followeeId is string
+        && request.resource.data.followerId != request.resource.data.followeeId
+        && request.resource.data.keys().hasOnly([
+          'followerId',
+          'followeeId',
+          'createdAt',
+          'updatedAt',
+        ]);
+    }
+
+    function followDeleteIsValid() {
+      return isSignedIn() && resource.data.followerId == request.auth.uid;
+    }
+
     match /books/{bookId} {
       allow read: if true;
       allow write: if false;
@@ -39,6 +57,13 @@ service cloud.firestore {
       allow read: if true;
       allow create: if reviewOwner();
       allow update, delete: if reviewOwnerExisting();
+    }
+
+    match /userFollows/{followId} {
+      allow read: if true;
+      allow create: if followCreateIsValid();
+      allow update: if false;
+      allow delete: if followDeleteIsValid();
     }
   }
 }
