@@ -41,3 +41,9 @@ Future<List<WallBook>> wallSearchResults(Ref ref) async {
   final WallRepository repo = ref.watch(wallRepositoryProvider);
   return repo.searchBooks(query);
 }
+
+@riverpod
+Future<List<WallBook>> wallTrendingResults(Ref ref) async {
+  final WallRepository repo = ref.watch(wallRepositoryProvider);
+  return repo.fetchTrendingBooks();
+}

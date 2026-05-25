@@ -21,11 +21,31 @@ class GoogleBooksWallRepository implements WallRepository {
       return <WallBook>[];
     }
 
+    return _fetchBooks(<String, String>{
+      'q': normalizedQuery,
+      'maxResults': '20',
+      'printType': 'books',
+    });
+  }
+
+  @override
+  Future<List<WallBook>> fetchTrendingBooks() {
+    return _fetchBooks(<String, String>{
+      // Google Books has no dedicated trending endpoint.
+      // Use a broad subject query for a dynamic, popular-feeling feed.
+      'q': 'subject:fiction',
+      'orderBy': 'newest',
+      'maxResults': '20',
+      'printType': 'books',
+    });
+  }
+
+  Future<List<WallBook>> _fetchBooks(
+    Map<String, String> queryParameters,
+  ) async {
     final Uri uri = _baseUri.replace(
       queryParameters: <String, String>{
-        'q': normalizedQuery,
-        'maxResults': '20',
-        'printType': 'books',
+        ...queryParameters,
         if (apiKey.isNotEmpty) 'key': apiKey,
       },
     );

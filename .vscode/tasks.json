@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run iOS Simulator",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"run",
+				"-d",
+				"466E4C8F-BB4B-4289-8E90-B748F004C0AF",
+				"--dart-define=GOOGLE_BOOKS_API_KEY=$GOOGLE_BOOKS_API_KEY"
+			],
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}

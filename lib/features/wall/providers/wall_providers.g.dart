@@ -181,3 +181,43 @@ final class WallSearchResultsProvider
 }
 
 String _$wallSearchResultsHash() => r'd753e2575c1def82ec5fb684e70bfcf21af03215';
+
+@ProviderFor(wallTrendingResults)
+final wallTrendingResultsProvider = WallTrendingResultsProvider._();
+
+final class WallTrendingResultsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<WallBook>>,
+          List<WallBook>,
+          FutureOr<List<WallBook>>
+        >
+    with $FutureModifier<List<WallBook>>, $FutureProvider<List<WallBook>> {
+  WallTrendingResultsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wallTrendingResultsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallTrendingResultsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<WallBook>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<WallBook>> create(Ref ref) {
+    return wallTrendingResults(ref);
+  }
+}
+
+String _$wallTrendingResultsHash() =>
+    r'8a30237189ed17612700c23363a91984fb202a61';

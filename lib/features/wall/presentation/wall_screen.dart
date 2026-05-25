@@ -42,6 +42,31 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     );
   }
 
+  Widget _buildBooksList(List<WallBook> books, AuthSessionState state) {
+    return ListView.separated(
+      itemCount: books.length,
+      separatorBuilder: (BuildContext context, int index) =>
+          const SizedBox(height: 8),
+      itemBuilder: (BuildContext context, int index) {
+        final WallBook book = books[index];
+        final String subtitle = book.authors.isEmpty
+            ? 'Unknown author'
+            : book.authors.join(', ');
+
+        return Card(
+          child: ListTile(
+            title: Text(book.title),
+            subtitle: Text(subtitle),
+            trailing: FilledButton.tonal(
+              onPressed: () => _handleProtectedAction(state),
+              child: const Text('Add'),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<AuthSessionState> session = ref.watch(authSessionProvider);
@@ -52,6 +77,9 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     final String query = ref.watch(wallSearchQueryProvider);
     final AsyncValue<List<WallBook>> search = ref.watch(
       wallSearchResultsProvider,
+    );
+    final AsyncValue<List<WallBook>> trending = ref.watch(
+      wallTrendingResultsProvider,
     );
 
     return Scaffold(
@@ -85,8 +113,34 @@ class _WallScreenState extends ConsumerState<WallScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: query.isEmpty
-                    ? const Center(
-                        child: Text('Search for a title, author, or keyword.'),
+                    ? trending.when(
+                        data: (List<WallBook> books) {
+                          if (books.isEmpty) {
+                            return const Center(
+                              child: Text('No trending books right now.'),
+                            );
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              const Text(
+                                'Trending now',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(child: _buildBooksList(books, state)),
+                            ],
+                          );
+                        },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (Object error, StackTrace stackTrace) {
+                          return Center(child: Text('Trending failed: $error'));
+                        },
                       )
                     : search.when(
                         data: (List<WallBook> books) {
@@ -96,30 +150,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                             );
                           }
 
-                          return ListView.separated(
-                            itemCount: books.length,
-                            separatorBuilder:
-                                (BuildContext context, int index) =>
-                                    const SizedBox(height: 8),
-                            itemBuilder: (BuildContext context, int index) {
-                              final WallBook book = books[index];
-                              final String subtitle = book.authors.isEmpty
-                                  ? 'Unknown author'
-                                  : book.authors.join(', ');
-
-                              return Card(
-                                child: ListTile(
-                                  title: Text(book.title),
-                                  subtitle: Text(subtitle),
-                                  trailing: FilledButton.tonal(
-                                    onPressed: () =>
-                                        _handleProtectedAction(state),
-                                    child: const Text('Add'),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                          return _buildBooksList(books, state);
                         },
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),

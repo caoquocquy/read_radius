@@ -1,6 +1,8 @@
 import 'package:book_radius/features/auth/domain/auth_session_state.dart';
 import 'package:book_radius/features/auth/providers/auth_providers.dart';
 import 'package:book_radius/core/providers/startup_provider.dart';
+import 'package:book_radius/features/wall/domain/wall_book.dart';
+import 'package:book_radius/features/wall/providers/wall_providers.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +18,9 @@ void main() {
           startupProvider.overrideWith((Ref ref) async {}),
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
+          ),
+          wallTrendingResultsProvider.overrideWith(
+            (Ref ref) async => <WallBook>[],
           ),
         ],
         child: const BookRadiusApp(),
