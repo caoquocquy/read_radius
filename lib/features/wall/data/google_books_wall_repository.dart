@@ -96,14 +96,44 @@ class GoogleBooksWallRepository implements WallRepository {
     final Map<String, dynamic>? imageLinks =
         volumeInfo?['imageLinks'] as Map<String, dynamic>?;
     final String? thumbnailUrl =
-        (imageLinks?['thumbnail'] as String?) ??
-        (imageLinks?['smallThumbnail'] as String?);
+        (imageLinks?['smallThumbnail'] as String?) ??
+        (imageLinks?['thumbnail'] as String?);
 
     return WallBook(
       id: id,
       title: title,
       authors: authors,
-      thumbnailUrl: thumbnailUrl?.replaceFirst('http://', 'https://'),
+      thumbnailUrl: _normalizeThumbnailUrl(thumbnailUrl),
     );
+  }
+
+  String? _normalizeThumbnailUrl(String? rawUrl) {
+    if (rawUrl == null || rawUrl.isEmpty) {
+      return null;
+    }
+
+    final Uri? uri = Uri.tryParse(rawUrl);
+    if (uri == null) {
+      return rawUrl.replaceFirst('http://', 'https://');
+    }
+
+    final Map<String, List<String>> query = Map<String, List<String>>.from(
+      uri.queryParametersAll,
+    );
+
+    // Reduce variants that often fail by requesting a plain thumbnail URL.
+    query.remove('edge');
+    if (query.containsKey('zoom')) {
+      query['zoom'] = <String>['5'];
+    }
+
+    final Map<String, String> normalizedQuery = <String, String>{
+      for (final MapEntry<String, List<String>> entry in query.entries)
+        if (entry.value.isNotEmpty) entry.key: entry.value.first,
+    };
+
+    return uri
+        .replace(scheme: 'https', queryParameters: normalizedQuery)
+        .toString();
   }
 }
