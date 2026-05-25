@@ -1,5 +1,6 @@
 import 'package:read_radius/features/wall/domain/wall_book.dart';
 import 'package:read_radius/features/wall/providers/wall_providers.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class WallBooksCollection extends StatelessWidget {
@@ -118,12 +119,6 @@ class _BookThumbnail extends StatelessWidget {
   const _BookThumbnail({required this.url});
 
   final String? url;
-  static const Map<String, String> _headers = <String, String>{
-    'User-Agent':
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
-    'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-    'Referer': 'https://books.google.com/',
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -133,14 +128,19 @@ class _BookThumbnail extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(6),
-      child: Image.network(
-        url!,
+      child: CachedNetworkImage(
+        imageUrl: url!,
         width: 44,
         height: 64,
         fit: BoxFit.cover,
-        headers: _headers,
-        errorBuilder: (BuildContext context, Object error, StackTrace? _) {
-          debugPrint('Thumbnail load failed for $url: $error');
+        memCacheWidth: 176,
+        maxWidthDiskCache: 176,
+        fadeInDuration: Duration.zero,
+        placeholder: (BuildContext context, String _) {
+          return const _BookThumbnailPlaceholder();
+        },
+        errorWidget: (BuildContext context, String failedUrl, Object error) {
+          debugPrint('Thumbnail load failed for $failedUrl: $error');
           return const _BookThumbnailPlaceholder();
         },
       ),
