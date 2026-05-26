@@ -85,10 +85,6 @@ Future<List<WallBook>> wallTrendingResults(Ref ref) async {
 
 @riverpod
 Future<Map<String, ShelfStatus>> wallBookStatuses(Ref ref) async {
-  if (enableWallExampleData) {
-    return ref.watch(wallLocalBookStatusesProvider);
-  }
-
   final AuthSessionState authState = await ref.watch(
     authSessionProvider.future,
   );
@@ -134,14 +130,6 @@ class WallShelfActionController extends _$WallShelfActionController {
     state = const AsyncLoading<void>();
 
     try {
-      if (enableWallExampleData) {
-        ref
-            .read(wallLocalBookStatusesProvider.notifier)
-            .setStatus(book.id, status);
-        state = const AsyncData<void>(null);
-        return;
-      }
-
       final AuthSessionState authState = await ref.read(
         authSessionProvider.future,
       );

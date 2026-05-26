@@ -103,7 +103,14 @@ class FirestoreShelvesRepository implements ShelvesRepository {
       throw const FormatException('Book id cannot be empty.');
     }
 
-    await _ensureBookExists(book);
+    try {
+      await _ensureBookExists(book);
+    } on FirebaseException catch (error) {
+      // Allow shelf writes to continue even if rules block creating shared book docs.
+      if (error.code != 'permission-denied') {
+        rethrow;
+      }
+    }
 
     final String docId = '${userId}_$bookId';
     final DocumentReference<Map<String, dynamic>> userBookRef = _firestore
