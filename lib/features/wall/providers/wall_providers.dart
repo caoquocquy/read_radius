@@ -1,3 +1,4 @@
+import 'package:read_radius/features/wall/data/example_wall_repository.dart';
 import 'package:read_radius/features/wall/data/google_books_wall_repository.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
 import 'package:read_radius/features/wall/domain/wall_repository.dart';
@@ -8,6 +9,8 @@ part 'wall_providers.g.dart';
 
 enum WallBooksViewMode { grid, list }
 
+const bool enableWallExampleData = true;
+
 @riverpod
 http.Client wallHttpClient(Ref ref) {
   final http.Client client = http.Client();
@@ -17,6 +20,10 @@ http.Client wallHttpClient(Ref ref) {
 
 @riverpod
 WallRepository wallRepository(Ref ref) {
+  if (enableWallExampleData) {
+    return ExampleWallRepository();
+  }
+
   return GoogleBooksWallRepository(
     ref.watch(wallHttpClientProvider),
     apiKey: const String.fromEnvironment('GOOGLE_BOOKS_API_KEY').trim(),

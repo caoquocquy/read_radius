@@ -17,7 +17,7 @@ class WallScreen extends ConsumerStatefulWidget {
 
   static const String routeName = 'wall-screen';
   static const String routePath = '/wall';
-  static const bool enableTrendingBooks = false;
+  static const bool enableTrendingBooks = true;
   static const bool enableThumbnail = false;
 
   @override
