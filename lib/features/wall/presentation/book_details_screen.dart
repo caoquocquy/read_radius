@@ -152,11 +152,62 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
     );
   }
 
+  Future<int?> _pickProgressPercent(int currentPercent) {
+    return showModalBottomSheet<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'Update Reading Progress',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                const Text('Select your current percentage:'),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    for (final int value in <int>[
+                      10,
+                      20,
+                      30,
+                      40,
+                      50,
+                      60,
+                      70,
+                      80,
+                      90,
+                      100,
+                    ])
+                      ChoiceChip(
+                        label: Text('$value%'),
+                        selected: currentPercent == value,
+                        onSelected: (_) {
+                          Navigator.of(context).pop(value);
+                        },
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _handleProgressAction({
     required AuthSessionState authState,
     required WallBookDetails details,
     required ShelfStatus? currentStatus,
-    required int selectedPercent,
+    required int currentPercent,
   }) async {
     if (authState != AuthSessionState.authenticated) {
       await _showAuthGuardSheet();
@@ -164,6 +215,11 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
     }
 
     if (currentStatus != ShelfStatus.reading) {
+      return;
+    }
+
+    final int? selectedPercent = await _pickProgressPercent(currentPercent);
+    if (selectedPercent == null) {
       return;
     }
 
@@ -381,37 +437,22 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                                 ),
                               ),
                             ),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: <Widget>[
-                              for (final int value in <int>[
-                                10,
-                                20,
-                                30,
-                                40,
-                                50,
-                                60,
-                                70,
-                                80,
-                                90,
-                                100,
-                              ])
-                                ChoiceChip(
-                                  label: Text('$value%'),
-                                  selected: displayedPercent == value,
-                                  onSelected: isProgressBusy
-                                      ? null
-                                      : (_) {
-                                          _handleProgressAction(
-                                            authState: authState,
-                                            details: details,
-                                            currentStatus: currentStatus,
-                                            selectedPercent: value,
-                                          );
-                                        },
-                                ),
-                            ],
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: isProgressBusy
+                                  ? null
+                                  : () {
+                                      _handleProgressAction(
+                                        authState: authState,
+                                        details: details,
+                                        currentStatus: currentStatus,
+                                        currentPercent: displayedPercent,
+                                      );
+                                    },
+                              icon: const Icon(Icons.tune_rounded),
+                              label: const Text('Update Progress'),
+                            ),
                           ),
                         ],
                       ),
