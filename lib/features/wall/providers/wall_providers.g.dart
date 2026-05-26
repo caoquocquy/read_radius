@@ -479,6 +479,80 @@ final class WallBookStatusFamily extends $Family
   String toString() => r'wallBookStatusProvider';
 }
 
+@ProviderFor(wallShelfBook)
+final wallShelfBookProvider = WallShelfBookFamily._();
+
+final class WallShelfBookProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ShelfBook?>,
+          ShelfBook?,
+          FutureOr<ShelfBook?>
+        >
+    with $FutureModifier<ShelfBook?>, $FutureProvider<ShelfBook?> {
+  WallShelfBookProvider._({
+    required WallShelfBookFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'wallShelfBookProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallShelfBookHash();
+
+  @override
+  String toString() {
+    return r'wallShelfBookProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<ShelfBook?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<ShelfBook?> create(Ref ref) {
+    final argument = this.argument as String;
+    return wallShelfBook(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is WallShelfBookProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$wallShelfBookHash() => r'14f2073971870c6eba45e2d5c777f77a955fc5d6';
+
+final class WallShelfBookFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<ShelfBook?>, String> {
+  WallShelfBookFamily._()
+    : super(
+        retry: null,
+        name: r'wallShelfBookProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  WallShelfBookProvider call(String bookId) =>
+      WallShelfBookProvider._(argument: bookId, from: this);
+
+  @override
+  String toString() => r'wallShelfBookProvider';
+}
+
 @ProviderFor(wallBookStatuses)
 final wallBookStatusesProvider = WallBookStatusesProvider._();
 
@@ -548,6 +622,52 @@ String _$wallShelfActionControllerHash() =>
     r'29af1a5428cb25d1c2126f8ae6db403d088eda88';
 
 abstract class _$WallShelfActionController extends $AsyncNotifier<void> {
+  FutureOr<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(WallReadingProgressController)
+final wallReadingProgressControllerProvider =
+    WallReadingProgressControllerProvider._();
+
+final class WallReadingProgressControllerProvider
+    extends $AsyncNotifierProvider<WallReadingProgressController, void> {
+  WallReadingProgressControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wallReadingProgressControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallReadingProgressControllerHash();
+
+  @$internal
+  @override
+  WallReadingProgressController create() => WallReadingProgressController();
+}
+
+String _$wallReadingProgressControllerHash() =>
+    r'd17f1910fd5a5976dccf49c35fa4104b29fad1f1';
+
+abstract class _$WallReadingProgressController extends $AsyncNotifier<void> {
   FutureOr<void> build();
   @$mustCallSuper
   @override

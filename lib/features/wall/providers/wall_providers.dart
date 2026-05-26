@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
@@ -122,6 +123,33 @@ Future<ShelfStatus?> wallBookStatus(Ref ref, String bookId) async {
 }
 
 @riverpod
+Future<ShelfBook?> wallShelfBook(Ref ref, String bookId) async {
+  final String normalizedBookId = bookId.trim();
+  if (normalizedBookId.isEmpty) {
+    return null;
+  }
+
+  final AuthSessionState authState = await ref.watch(
+    authSessionProvider.future,
+  );
+  if (authState != AuthSessionState.authenticated) {
+    return null;
+  }
+
+  final User? user = FirebaseAuth.instance.currentUser;
+  final String? userId = user?.uid;
+  if (userId == null || userId.isEmpty) {
+    return null;
+  }
+
+  final ShelvesRepository shelvesRepo = ref.watch(shelvesRepositoryProvider);
+  return shelvesRepo.fetchShelfBookForUser(
+    userId: userId,
+    bookId: normalizedBookId,
+  );
+}
+
+@riverpod
 Future<Map<String, ShelfStatus>> wallBookStatuses(Ref ref) async {
   final AuthSessionState authState = await ref.watch(
     authSessionProvider.future,
@@ -206,6 +234,75 @@ class WallShelfActionController extends _$WallShelfActionController {
         return;
       }
       state = AsyncError<void>(error, stackTrace);
+      rethrow;
+    }
+  }
+}
+
+@riverpod
+class WallReadingProgressController extends _$WallReadingProgressController {
+  @override
+  Future<void> build() async {}
+
+  Future<ShelfStatus> updateProgress({
+    required WallBookDetails details,
+    required int currentPercent,
+  }) async {
+    if (!ref.mounted) {
+      return ShelfStatus.reading;
+    }
+
+    state = const AsyncLoading<void>();
+
+    try {
+      final AuthSessionState authState = await ref.read(
+        authSessionProvider.future,
+      );
+      if (authState != AuthSessionState.authenticated) {
+        throw Exception('Sign in is required to update reading progress.');
+      }
+
+      final User? user = FirebaseAuth.instance.currentUser;
+      final String? userId = user?.uid;
+      if (userId == null || userId.isEmpty) {
+        throw Exception('Could not resolve authenticated user.');
+      }
+
+      int normalizedPercent = currentPercent.clamp(0, 100);
+
+      ShelfStatus targetStatus = ShelfStatus.reading;
+      if (normalizedPercent >= 100) {
+        targetStatus = ShelfStatus.completed;
+        normalizedPercent = 100;
+      }
+
+      final ShelvesRepository shelvesRepo = ref.read(shelvesRepositoryProvider);
+      await shelvesRepo.upsertReadingProgressForUser(
+        userId: userId,
+        book: ShelfBookSeed(
+          bookId: details.id,
+          title: details.title,
+          authors: details.authors,
+          thumbnailUrl: details.thumbnailUrl,
+        ),
+        status: targetStatus,
+        currentPercent: normalizedPercent,
+      );
+
+      if (!ref.mounted) {
+        return targetStatus;
+      }
+
+      ref.invalidate(wallBookStatusProvider(details.id));
+      ref.invalidate(wallBookStatusesProvider);
+      ref.invalidate(wallShelfBookProvider(details.id));
+      ref.invalidate(shelvesByStatusProvider);
+      state = const AsyncData<void>(null);
+      return targetStatus;
+    } catch (error, stackTrace) {
+      if (ref.mounted) {
+        state = AsyncError<void>(error, stackTrace);
+      }
       rethrow;
     }
   }

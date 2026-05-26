@@ -19,6 +19,10 @@ class ShelfBookSeed {
 
 abstract class ShelvesRepository {
   Future<ShelvesByStatus> fetchShelvesForUser(String userId);
+  Future<ShelfBook?> fetchShelfBookForUser({
+    required String userId,
+    required String bookId,
+  });
   Future<Map<String, ShelfStatus>> fetchBookStatusesForUser(
     String userId,
     List<String> bookIds,
@@ -27,6 +31,12 @@ abstract class ShelvesRepository {
     required String userId,
     required ShelfBookSeed book,
     required ShelfStatus status,
+  });
+  Future<void> upsertReadingProgressForUser({
+    required String userId,
+    required ShelfBookSeed book,
+    required ShelfStatus status,
+    required int? currentPercent,
   });
 }
 

@@ -86,7 +86,7 @@ class WallBooksCollection extends StatelessWidget {
             crossAxisCount: crossAxisCount,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 0.54,
+            childAspectRatio: 0.7,
           ),
           itemBuilder: (BuildContext context, int index) {
             final WallBook book = books[index];

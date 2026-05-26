@@ -1,6 +1,7 @@
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
 import 'package:read_radius/features/wall/domain/wall_book_details.dart';
@@ -24,6 +25,7 @@ class BookDetailsScreen extends ConsumerStatefulWidget {
 
 class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   bool _isSubmittingShelfAction = false;
+  bool _isSubmittingProgress = false;
 
   Future<void> _showAuthGuardSheet() {
     return showModalBottomSheet<void>(
@@ -148,6 +150,69 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
     );
   }
 
+  Future<void> _handleProgressAction({
+    required AuthSessionState authState,
+    required WallBookDetails details,
+    required ShelfStatus? currentStatus,
+    required int selectedPercent,
+  }) async {
+    if (authState != AuthSessionState.authenticated) {
+      await _showAuthGuardSheet();
+      return;
+    }
+
+    if (currentStatus != ShelfStatus.reading) {
+      return;
+    }
+
+    setState(() {
+      _isSubmittingProgress = true;
+    });
+
+    try {
+      final ShelfStatus nextStatus = await ref
+          .read(wallReadingProgressControllerProvider.notifier)
+          .updateProgress(details: details, currentPercent: selectedPercent);
+
+      // Force immediate re-fetch so the progress card reflects latest values.
+      final ShelfBook? refreshedShelfBook = await ref.refresh(
+        wallShelfBookProvider(details.id).future,
+      );
+      final ShelfStatus? refreshedStatus = await ref.refresh(
+        wallBookStatusProvider(details.id).future,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (refreshedStatus ?? nextStatus) == ShelfStatus.completed
+                ? 'Progress updated. Marked as Read.'
+                : refreshedShelfBook == null
+                ? 'Progress updated.'
+                : 'Reading progress updated.',
+          ),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmittingProgress = false;
+        });
+      }
+    }
+  }
+
   WallBook _toWallBook(WallBookDetails details) {
     return WallBook(
       id: details.id,
@@ -171,6 +236,9 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
     final AsyncValue<ShelfStatus?> statusAsync = ref.watch(
       wallBookStatusProvider(widget.bookId),
     );
+    final AsyncValue<ShelfBook?> shelfBookAsync = ref.watch(
+      wallShelfBookProvider(widget.bookId),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Book Details')),
@@ -181,10 +249,20 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
               data: (ShelfStatus? value) => value,
               orElse: () => null,
             );
+            final ShelfBook? shelfBook = shelfBookAsync.maybeWhen(
+              data: (ShelfBook? value) => value,
+              orElse: () => null,
+            );
             final bool statusLoading = statusAsync.isLoading;
             final bool isActionBusy =
                 _isSubmittingShelfAction ||
                 ref.watch(wallShelfActionControllerProvider).isLoading;
+            final bool isProgressBusy =
+                _isSubmittingProgress ||
+                ref.watch(wallReadingProgressControllerProvider).isLoading;
+            final int displayedPercent = (shelfBook?.currentPercent ?? 0)
+                .clamp(0, 100)
+                .toInt();
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -263,6 +341,73 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                       : const Icon(Icons.collections_bookmark_outlined),
                   label: Text(currentStatus?.actionLabel ?? 'Add to Shelf'),
                 ),
+                if (currentStatus == ShelfStatus.reading) ...<Widget>[
+                  const SizedBox(height: 12),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            'Reading Progress',
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 6),
+                          Text('Current progress: $displayedPercent%'),
+                          const SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value: displayedPercent / 100,
+                          ),
+                          const SizedBox(height: 10),
+                          if (isProgressBusy)
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8),
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: <Widget>[
+                              for (final int value in <int>[
+                                10,
+                                20,
+                                30,
+                                40,
+                                50,
+                                60,
+                                70,
+                                80,
+                                90,
+                                100,
+                              ])
+                                ChoiceChip(
+                                  label: Text('$value%'),
+                                  selected: displayedPercent == value,
+                                  onSelected: isProgressBusy
+                                      ? null
+                                      : (_) {
+                                          _handleProgressAction(
+                                            authState: authState,
+                                            details: details,
+                                            currentStatus: currentStatus,
+                                            selectedPercent: value,
+                                          );
+                                        },
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 if (details.previewLink != null) ...<Widget>[
                   const SizedBox(height: 8),
                   OutlinedButton.icon(

@@ -11,6 +11,36 @@ class FirestoreShelvesRepository implements ShelvesRepository {
   static const int _whereInChunkSize = 10;
 
   @override
+  Future<ShelfBook?> fetchShelfBookForUser({
+    required String userId,
+    required String bookId,
+  }) async {
+    final String normalizedBookId = bookId.trim();
+    if (normalizedBookId.isEmpty) {
+      return null;
+    }
+
+    final String docId = '${userId}_$normalizedBookId';
+    final DocumentSnapshot<Map<String, dynamic>> userBookSnapshot =
+        await _firestore.collection('userBooks').doc(docId).get();
+    if (!userBookSnapshot.exists) {
+      return null;
+    }
+
+    final _UserBookRecord? record = _toUserBookRecord(userBookSnapshot);
+    if (record == null) {
+      return null;
+    }
+
+    final DocumentSnapshot<Map<String, dynamic>> bookSnapshot = await _firestore
+        .collection('books')
+        .doc(normalizedBookId)
+        .get();
+
+    return _toShelfBook(record, bookSnapshot.data());
+  }
+
+  @override
   Future<ShelvesByStatus> fetchShelvesForUser(String userId) async {
     final QuerySnapshot<Map<String, dynamic>> userBooksSnapshot =
         await _firestore
@@ -124,6 +154,44 @@ class FirestoreShelvesRepository implements ShelvesRepository {
       'userId': userId,
       'bookId': bookId,
       'status': status.storageValue,
+      ..._progressFields(currentPercent: null),
+      'updatedAt': FieldValue.serverTimestamp(),
+      if (!existing.exists) 'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  @override
+  Future<void> upsertReadingProgressForUser({
+    required String userId,
+    required ShelfBookSeed book,
+    required ShelfStatus status,
+    required int? currentPercent,
+  }) async {
+    final String bookId = book.bookId.trim();
+    if (bookId.isEmpty) {
+      throw const FormatException('Book id cannot be empty.');
+    }
+
+    try {
+      await _ensureBookExists(book);
+    } on FirebaseException catch (error) {
+      if (error.code != 'permission-denied') {
+        rethrow;
+      }
+    }
+
+    final String docId = '${userId}_$bookId';
+    final DocumentReference<Map<String, dynamic>> userBookRef = _firestore
+        .collection('userBooks')
+        .doc(docId);
+    final DocumentSnapshot<Map<String, dynamic>> existing = await userBookRef
+        .get();
+
+    await userBookRef.set(<String, dynamic>{
+      'userId': userId,
+      'bookId': bookId,
+      'status': status.storageValue,
+      ..._progressFields(currentPercent: currentPercent),
       'updatedAt': FieldValue.serverTimestamp(),
       if (!existing.exists) 'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
@@ -147,11 +215,15 @@ class FirestoreShelvesRepository implements ShelvesRepository {
     }
 
     final Timestamp? updatedTimestamp = data['updatedAt'] as Timestamp?;
+    final Timestamp? progressUpdatedTimestamp =
+        data['progressUpdatedAt'] as Timestamp?;
 
     return _UserBookRecord(
       bookId: bookId,
       status: status,
       updatedAt: updatedTimestamp?.toDate(),
+      currentPercent: _asInt(data['currentPercent']),
+      progressUpdatedAt: progressUpdatedTimestamp?.toDate(),
     );
   }
 
@@ -180,7 +252,25 @@ class FirestoreShelvesRepository implements ShelvesRepository {
       status: record.status,
       thumbnailUrl: thumbnailUrl,
       updatedAt: record.updatedAt,
+      currentPercent: record.currentPercent,
+      progressUpdatedAt: record.progressUpdatedAt,
     );
+  }
+
+  int? _asInt(Object? value) {
+    if (value is int) {
+      return value;
+    }
+    return null;
+  }
+
+  Map<String, Object?> _progressFields({required int? currentPercent}) {
+    return <String, Object?>{
+      'currentPercent': currentPercent ?? FieldValue.delete(),
+      'progressUpdatedAt': currentPercent == null
+          ? FieldValue.delete()
+          : FieldValue.serverTimestamp(),
+    };
   }
 
   String? _extractThumbnail(Map<String, dynamic>? bookData) {
@@ -272,9 +362,13 @@ class _UserBookRecord {
     required this.bookId,
     required this.status,
     required this.updatedAt,
+    required this.currentPercent,
+    required this.progressUpdatedAt,
   });
 
   final String bookId;
   final ShelfStatus status;
   final DateTime? updatedAt;
+  final int? currentPercent;
+  final DateTime? progressUpdatedAt;
 }

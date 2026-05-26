@@ -8,6 +8,8 @@ class ShelfBook {
     required this.status,
     this.thumbnailUrl,
     this.updatedAt,
+    this.currentPercent,
+    this.progressUpdatedAt,
   });
 
   final String bookId;
@@ -16,4 +18,6 @@ class ShelfBook {
   final ShelfStatus status;
   final String? thumbnailUrl;
   final DateTime? updatedAt;
+  final int? currentPercent;
+  final DateTime? progressUpdatedAt;
 }

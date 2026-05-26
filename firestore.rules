@@ -39,16 +39,24 @@ service cloud.firestore {
       return status in ['want_to_read', 'reading', 'completed'];
     }
 
+    function validCurrentPercent(data) {
+      return !('currentPercent' in data) ||
+        (data.currentPercent is int && data.currentPercent >= 0 && data.currentPercent <= 100);
+    }
+
     function userBookCreateIsValid() {
       return isSignedIn()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.userId is string
         && request.resource.data.bookId is string
         && validShelfStatus(request.resource.data.status)
+        && validCurrentPercent(request.resource.data)
         && request.resource.data.keys().hasOnly([
           'userId',
           'bookId',
           'status',
+          'currentPercent',
+          'progressUpdatedAt',
           'createdAt',
           'updatedAt',
         ]);
@@ -60,10 +68,13 @@ service cloud.firestore {
         && request.resource.data.userId == resource.data.userId
         && request.resource.data.bookId == resource.data.bookId
         && validShelfStatus(request.resource.data.status)
+        && validCurrentPercent(request.resource.data)
         && request.resource.data.keys().hasOnly([
           'userId',
           'bookId',
           'status',
+          'currentPercent',
+          'progressUpdatedAt',
           'createdAt',
           'updatedAt',
         ]);
