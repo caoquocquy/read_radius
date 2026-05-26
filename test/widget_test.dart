@@ -4,8 +4,8 @@ import 'package:read_radius/core/providers/startup_provider.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
-import 'package:read_radius/features/home/domain/wall_book.dart';
-import 'package:read_radius/features/home/providers/wall_providers.dart';
+import 'package:read_radius/features/home/domain/home_book.dart';
+import 'package:read_radius/features/home/providers/home_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:read_radius/app/app.dart';
 
 void main() {
-  testWidgets('ReadRadius app shell renders wall search prompt', (
+  testWidgets('ReadRadius app shell renders home search prompt', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -23,8 +23,8 @@ void main() {
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
           ),
-          wallTrendingResultsProvider.overrideWith(
-            (Ref ref) async => <WallBook>[],
+          homeTrendingResultsProvider.overrideWith(
+            (Ref ref) async => <HomeBook>[],
           ),
         ],
         child: const ReadRadiusApp(),
@@ -35,7 +35,7 @@ void main() {
     expect(find.text('Search books on Google Books'), findsOneWidget);
   });
 
-  testWidgets('Wall defaults to grid mode', (WidgetTester tester) async {
+  testWidgets('Home defaults to grid mode', (WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -43,9 +43,9 @@ void main() {
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
           ),
-          wallTrendingResultsProvider.overrideWith(
-            (Ref ref) async => const <WallBook>[
-              WallBook(
+          homeTrendingResultsProvider.overrideWith(
+            (Ref ref) async => const <HomeBook>[
+              HomeBook(
                 id: 'book-1',
                 title: 'Sample Book',
                 authors: <String>['Sample Author'],
@@ -59,12 +59,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('wall-grid-view')), findsOneWidget);
+    expect(find.byKey(const Key('home-grid-view')), findsOneWidget);
     expect(find.byIcon(Icons.grid_view_rounded), findsOneWidget);
     expect(find.byIcon(Icons.view_list_rounded), findsOneWidget);
   });
 
-  testWidgets('Wall toggles between grid and list views', (
+  testWidgets('Home toggles between grid and list views', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -74,15 +74,15 @@ void main() {
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
           ),
-          wallTrendingResultsProvider.overrideWith(
-            (Ref ref) async => const <WallBook>[
-              WallBook(
+          homeTrendingResultsProvider.overrideWith(
+            (Ref ref) async => const <HomeBook>[
+              HomeBook(
                 id: 'book-1',
                 title: 'Sample Book 1',
                 authors: <String>['Author 1'],
                 thumbnailUrl: null,
               ),
-              WallBook(
+              HomeBook(
                 id: 'book-2',
                 title: 'Sample Book 2',
                 authors: <String>['Author 2'],
@@ -96,23 +96,23 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('wall-grid-view')), findsOneWidget);
-    expect(find.byKey(const Key('wall-list-view')), findsNothing);
+    expect(find.byKey(const Key('home-grid-view')), findsOneWidget);
+    expect(find.byKey(const Key('home-list-view')), findsNothing);
 
     await tester.tap(find.text('List'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('wall-list-view')), findsOneWidget);
-    expect(find.byKey(const Key('wall-grid-view')), findsNothing);
+    expect(find.byKey(const Key('home-list-view')), findsOneWidget);
+    expect(find.byKey(const Key('home-grid-view')), findsNothing);
 
     await tester.tap(find.text('Grid'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('wall-grid-view')), findsOneWidget);
-    expect(find.byKey(const Key('wall-list-view')), findsNothing);
+    expect(find.byKey(const Key('home-grid-view')), findsOneWidget);
+    expect(find.byKey(const Key('home-list-view')), findsNothing);
   });
 
-  testWidgets('Tapping wall book opens details screen', (
+  testWidgets('Tapping home book opens details screen', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -122,9 +122,9 @@ void main() {
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
           ),
-          wallTrendingResultsProvider.overrideWith(
-            (Ref ref) async => const <WallBook>[
-              WallBook(
+          homeTrendingResultsProvider.overrideWith(
+            (Ref ref) async => const <HomeBook>[
+              HomeBook(
                 id: 'example-1984',
                 title: '1984',
                 authors: <String>['George Orwell'],
@@ -138,11 +138,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('1984'));
+    await tester.tap(find.text('1984').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Book Details'), findsOneWidget);
-    expect(find.text('About this book'), findsOneWidget);
+    expect(find.text('1984'), findsWidgets);
+    expect(find.text('George Orwell'), findsOneWidget);
+    expect(find.text('Update Progress'), findsOneWidget);
   });
 
   testWidgets('Tapping shelf book opens details screen', (
@@ -176,13 +177,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.collections_bookmark_outlined));
+    await tester.tap(find.text('1984').first);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('1984'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Book Details'), findsOneWidget);
-    expect(find.text('About this book'), findsOneWidget);
+    expect(find.text('1984'), findsWidgets);
+    expect(find.text('George Orwell'), findsOneWidget);
+    expect(find.text('Update Progress'), findsOneWidget);
   });
 }

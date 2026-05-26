@@ -1,18 +1,12 @@
 import 'dart:async';
 
-import 'package:read_radius/features/auth/domain/auth_session_state.dart';
-import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
-import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar_button.dart';
-import 'package:read_radius/features/auth/providers/auth_providers.dart';
-import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
-import 'package:read_radius/features/home/domain/wall_book_details.dart';
-import 'package:read_radius/features/home/providers/wall_providers.dart';
+import 'package:read_radius/features/home/domain/home_book_details.dart';
+import 'package:read_radius/features/home/providers/home_providers.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class BookDetailsScreen extends ConsumerStatefulWidget {
   const BookDetailsScreen({required this.bookId, super.key});
@@ -56,7 +50,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   Future<void> _handleProgressAction(
     int currentPercent,
     String bookId,
-    WallBookDetails details,
+    HomeBookDetails details,
   ) async {
     setState(() {
       _isSubmittingProgress = true;
@@ -67,17 +61,19 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
       if (selected == null) return;
 
       final ShelfStatus status = await ref
-          .read(wallReadingProgressControllerProvider.notifier)
+          .read(homeReadingProgressControllerProvider.notifier)
           .updateProgress(details: details, currentPercent: selected);
 
       if (!mounted) return;
 
-      ref.invalidate(wallShelfBookProvider(bookId));
-      ref.invalidate(wallBookStatusProvider(bookId));
+      ref.invalidate(homeShelfBookProvider(bookId));
+      ref.invalidate(homeBookStatusProvider(bookId));
       ref.invalidate(shelvesByStatusProvider);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Progress saved — marked ${status.actionLabel}.')),
+        SnackBar(
+          content: Text('Progress saved — marked ${status.actionLabel}.'),
+        ),
       );
     } finally {
       if (mounted) {
@@ -91,18 +87,21 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final String bookId = widget.bookId;
-    final AsyncValue<WallBookDetails> detailsAsync = ref.watch(
-      wallBookDetailsProvider(bookId),
+    final AsyncValue<HomeBookDetails> detailsAsync = ref.watch(
+      homeBookDetailsProvider(bookId),
     );
 
     return detailsAsync.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (Object error, StackTrace stackTrace) {
-        return Scaffold(body: Center(child: Text('Failed to load book: $error')));
+        return Scaffold(
+          body: Center(child: Text('Failed to load book: $error')),
+        );
       },
-      data: (WallBookDetails details) {
+      data: (HomeBookDetails details) {
         final AsyncValue<ShelfBook?> shelfBookAsync = ref.watch(
-          wallShelfBookProvider(bookId),
+          homeShelfBookProvider(bookId),
         );
 
         final int currentPercent = shelfBookAsync.maybeWhen(
@@ -121,7 +120,10 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   if (details.thumbnailUrl != null)
                     Center(child: Image.network(details.thumbnailUrl!)),
                   const SizedBox(height: 12),
-                  Text(details.title, style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    details.title,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   Text(details.authors.join(', ')),
                   const SizedBox(height: 12),
                   LinearProgressIndicator(value: currentPercent / 100),
@@ -133,7 +135,11 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                       FilledButton(
                         onPressed: _isSubmittingProgress
                             ? null
-                            : () => _handleProgressAction(currentPercent, bookId, details),
+                            : () => _handleProgressAction(
+                                currentPercent,
+                                bookId,
+                                details,
+                              ),
                         child: const Text('Update Progress'),
                       ),
                     ],

@@ -6,11 +6,11 @@ import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
-import 'package:read_radius/features/home/domain/wall_book.dart';
+import 'package:read_radius/features/home/domain/home_book.dart';
 import 'package:read_radius/features/home/presentation/book_details_screen.dart';
-import 'package:read_radius/features/home/presentation/widgets/wall_books_collection.dart';
-import 'package:read_radius/features/home/presentation/widgets/wall_view_mode_toggle.dart';
-import 'package:read_radius/features/home/providers/wall_providers.dart';
+import 'package:read_radius/features/home/presentation/widgets/home_books_collection.dart';
+import 'package:read_radius/features/home/presentation/widgets/home_view_mode_toggle.dart';
+import 'package:read_radius/features/home/providers/home_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -72,7 +72,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _handleBookAction({
     required AuthSessionState state,
-    required WallBook book,
+    required HomeBook book,
     required ShelfStatus? currentStatus,
   }) async {
     if (state != AuthSessionState.authenticated) {
@@ -91,7 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     try {
       await ref
-          .read(wallShelfActionControllerProvider.notifier)
+          .read(homeShelfActionControllerProvider.notifier)
           .setBookStatus(book: book, status: selectedStatus);
 
       if (!mounted) {
@@ -124,20 +124,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       data: (AuthSessionState value) => value,
       orElse: () => AuthSessionState.guest,
     );
-    final String query = ref.watch(wallSearchQueryProvider);
-    final AsyncValue<List<WallBook>> search = ref.watch(
-      wallSearchResultsProvider,
+    final String query = ref.watch(homeSearchQueryProvider);
+    final AsyncValue<List<HomeBook>> search = ref.watch(
+      homeSearchResultsProvider,
     );
-    final AsyncValue<List<WallBook>> trending = ref.watch(
-      wallTrendingResultsProvider,
+    final AsyncValue<List<HomeBook>> trending = ref.watch(
+      homeTrendingResultsProvider,
     );
     final AsyncValue<Map<String, ShelfStatus>> statusMapAsync = ref.watch(
-      wallBookStatusesProvider,
+      homeBookStatusesProvider,
     );
     final AsyncValue<void> actionState = ref.watch(
-      wallShelfActionControllerProvider,
+      homeShelfActionControllerProvider,
     );
-    final WallBooksViewMode viewMode = ref.watch(wallViewModeProvider);
+    final HomeBooksViewMode viewMode = ref.watch(homeViewModeProvider);
     final Map<String, ShelfStatus> statusMap = statusMapAsync.maybeWhen(
       data: (Map<String, ShelfStatus> value) => value,
       orElse: () => <String, ShelfStatus>{},
@@ -168,7 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _debounce?.cancel();
               _debounce = Timer(const Duration(milliseconds: 450), () {
                 if (!mounted) return;
-                ref.read(wallSearchQueryProvider.notifier).setQuery(value);
+                ref.read(homeSearchQueryProvider.notifier).setQuery(value);
               });
             },
           ),
@@ -180,17 +180,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              WallViewModeToggle(
+              HomeViewModeToggle(
                 mode: viewMode,
-                onModeSelected: (WallBooksViewMode selected) {
-                  ref.read(wallViewModeProvider.notifier).setMode(selected);
+                onModeSelected: (HomeBooksViewMode selected) {
+                  ref.read(homeViewModeProvider.notifier).setMode(selected);
                 },
               ),
               const SizedBox(height: 12),
               Expanded(
                 child: query.isEmpty
                     ? trending.when(
-                        data: (List<WallBook> books) {
+                        data: (List<HomeBook> books) {
                           if (books.isEmpty) {
                             return const Center(
                               child: Text('No trending books right now.'),
@@ -209,17 +209,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                               const SizedBox(height: 8),
                               Expanded(
-                                child: WallBooksCollection(
+                                child: HomeBooksCollection(
                                   books: books,
                                   viewMode: viewMode,
                                   enableThumbnail: true,
-                                  actionLabelBuilder: (WallBook book) {
+                                  actionLabelBuilder: (HomeBook book) {
                                     final ShelfStatus? status =
                                         statusMap[book.id];
                                     return status?.actionLabel ??
                                         'Want to Read';
                                   },
-                                  onBookTap: (WallBook book) {
+                                  onBookTap: (HomeBook book) {
                                     context.pushNamed(
                                       BookDetailsScreen.routeName,
                                       pathParameters: <String, String>{
@@ -227,14 +227,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       },
                                     );
                                   },
-                                  onActionPressed: (WallBook book) {
+                                  onActionPressed: (HomeBook book) {
                                     _handleBookAction(
                                       state: state,
                                       book: book,
                                       currentStatus: statusMap[book.id],
                                     );
                                   },
-                                  isActionLoading: (WallBook book) {
+                                  isActionLoading: (HomeBook book) {
                                     return actionState.isLoading &&
                                         _pendingActionBookId == book.id;
                                   },
@@ -250,22 +250,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         },
                       )
                     : search.when(
-                        data: (List<WallBook> books) {
+                        data: (List<HomeBook> books) {
                           if (books.isEmpty) {
                             return const Center(
                               child: Text('No books found for this query.'),
                             );
                           }
 
-                          return WallBooksCollection(
+                          return HomeBooksCollection(
                             books: books,
                             viewMode: viewMode,
                             enableThumbnail: true,
-                            actionLabelBuilder: (WallBook book) {
+                            actionLabelBuilder: (HomeBook book) {
                               final ShelfStatus? status = statusMap[book.id];
                               return status?.actionLabel ?? 'Want to Read';
                             },
-                            onBookTap: (WallBook book) {
+                            onBookTap: (HomeBook book) {
                               context.pushNamed(
                                 BookDetailsScreen.routeName,
                                 pathParameters: <String, String>{
@@ -273,14 +273,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 },
                               );
                             },
-                            onActionPressed: (WallBook book) {
+                            onActionPressed: (HomeBook book) {
                               _handleBookAction(
                                 state: state,
                                 book: book,
                                 currentStatus: statusMap[book.id],
                               );
                             },
-                            isActionLoading: (WallBook book) {
+                            isActionLoading: (HomeBook book) {
                               return actionState.isLoading &&
                                   _pendingActionBookId == book.id;
                             },
