@@ -116,7 +116,25 @@ class _WallScreenState extends ConsumerState<WallScreen> {
             ),
           ),
         ),
-        title: const Text('ReadRadius'),
+        titleSpacing: 8,
+        title: SizedBox(
+          height: 40,
+          child: TextField(
+            decoration: const InputDecoration(
+              hintText: 'Search books on Google Books',
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(),
+              isDense: true,
+            ),
+            onChanged: (String value) {
+              _debounce?.cancel();
+              _debounce = Timer(const Duration(milliseconds: 450), () {
+                if (!mounted) return;
+                ref.read(wallSearchQueryProvider.notifier).setQuery(value);
+              });
+            },
+          ),
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -124,27 +142,6 @@ class _WallScreenState extends ConsumerState<WallScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                state == AuthSessionState.authenticated
-                    ? 'Signed in'
-                    : 'Browsing as guest',
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: 'Search books on Google Books',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (String value) {
-                  _debounce?.cancel();
-                  _debounce = Timer(const Duration(milliseconds: 450), () {
-                    if (!mounted) return;
-                    ref.read(wallSearchQueryProvider.notifier).setQuery(value);
-                  });
-                },
-              ),
-              const SizedBox(height: 12),
               WallViewModeToggle(
                 mode: viewMode,
                 onModeSelected: (WallBooksViewMode selected) {

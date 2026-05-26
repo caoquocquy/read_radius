@@ -5,27 +5,38 @@ class WallViewModeToggle extends StatelessWidget {
   const WallViewModeToggle({
     required this.mode,
     required this.onModeSelected,
+    this.compact = false,
     super.key,
   });
 
   final WallBooksViewMode mode;
   final ValueChanged<WallBooksViewMode> onModeSelected;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerRight,
       child: SegmentedButton<WallBooksViewMode>(
-        segments: const <ButtonSegment<WallBooksViewMode>>[
+        style: compact
+            ? const ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+                  EdgeInsets.symmetric(horizontal: 8),
+                ),
+              )
+            : null,
+        segments: <ButtonSegment<WallBooksViewMode>>[
           ButtonSegment<WallBooksViewMode>(
             value: WallBooksViewMode.grid,
-            icon: Icon(Icons.grid_view_rounded),
-            label: Text('Grid'),
+            icon: const Icon(Icons.grid_view_rounded),
+            label: compact ? null : const Text('Grid'),
           ),
           ButtonSegment<WallBooksViewMode>(
             value: WallBooksViewMode.list,
-            icon: Icon(Icons.view_list_rounded),
-            label: Text('List'),
+            icon: const Icon(Icons.view_list_rounded),
+            label: compact ? null : const Text('List'),
           ),
         ],
         selected: <WallBooksViewMode>{mode},
