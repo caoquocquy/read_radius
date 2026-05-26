@@ -339,7 +339,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.collections_bookmark_outlined),
-                  label: Text(currentStatus?.actionLabel ?? 'Add to Shelf'),
+                  label: Text(currentStatus?.actionLabel ?? 'Want to Read'),
                 ),
                 if (currentStatus == ShelfStatus.reading) ...<Widget>[
                   const SizedBox(height: 12),

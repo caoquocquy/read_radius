@@ -216,7 +216,8 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                                   actionLabelBuilder: (WallBook book) {
                                     final ShelfStatus? status =
                                         statusMap[book.id];
-                                    return status?.actionLabel ?? 'Add';
+                                    return status?.actionLabel ??
+                                        'Want to Read';
                                   },
                                   onBookTap: (WallBook book) {
                                     context.pushNamed(
@@ -262,7 +263,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                             enableThumbnail: true,
                             actionLabelBuilder: (WallBook book) {
                               final ShelfStatus? status = statusMap[book.id];
-                              return status?.actionLabel ?? 'Add';
+                              return status?.actionLabel ?? 'Want to Read';
                             },
                             onBookTap: (WallBook book) {
                               context.pushNamed(
