@@ -227,6 +227,7 @@ class WallShelfActionController extends _$WallShelfActionController {
 
       ref.invalidate(wallBookStatusesProvider);
       ref.invalidate(wallBookStatusProvider(book.id));
+      ref.invalidate(wallShelfBookProvider(book.id));
       ref.invalidate(shelvesByStatusProvider);
       state = const AsyncData<void>(null);
     } catch (error, stackTrace) {

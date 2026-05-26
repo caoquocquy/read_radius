@@ -3,6 +3,8 @@ import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
+import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
+import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
 import 'package:read_radius/features/wall/domain/wall_book_details.dart';
 import 'package:read_radius/features/wall/providers/wall_providers.dart';
@@ -181,6 +183,13 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
       final ShelfStatus? refreshedStatus = await ref.refresh(
         wallBookStatusProvider(details.id).future,
       );
+      final ShelvesByStatus refreshedShelves = await ref.refresh(
+        shelvesByStatusProvider.future,
+      );
+      final bool isInCompletedShelf =
+          (refreshedShelves[ShelfStatus.completed] ?? const <ShelfBook>[]).any(
+            (ShelfBook book) => book.bookId == details.id,
+          );
 
       if (!mounted) {
         return;
@@ -189,7 +198,8 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            (refreshedStatus ?? nextStatus) == ShelfStatus.completed
+            (refreshedStatus ?? nextStatus) == ShelfStatus.completed ||
+                    isInCompletedShelf
                 ? 'Progress updated. Marked as Read.'
                 : refreshedShelfBook == null
                 ? 'Progress updated.'

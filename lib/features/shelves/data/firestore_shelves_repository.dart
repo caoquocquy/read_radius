@@ -149,12 +149,22 @@ class FirestoreShelvesRepository implements ShelvesRepository {
 
     final DocumentSnapshot<Map<String, dynamic>> existing = await userBookRef
         .get();
+    final Map<String, dynamic>? existingData = existing.data();
+    final ShelfStatus? existingStatus = shelfStatusFromStorage(
+      existingData?['status'] as String?,
+    );
+    final int? existingPercent = _asInt(existingData?['currentPercent']);
+    final int? nextPercent = status == ShelfStatus.reading
+        ? existingStatus == ShelfStatus.reading
+              ? existingPercent
+              : 0
+        : null;
 
     await userBookRef.set(<String, dynamic>{
       'userId': userId,
       'bookId': bookId,
       'status': status.storageValue,
-      ..._progressFields(currentPercent: null),
+      ..._progressFields(currentPercent: nextPercent),
       'updatedAt': FieldValue.serverTimestamp(),
       if (!existing.exists) 'createdAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
