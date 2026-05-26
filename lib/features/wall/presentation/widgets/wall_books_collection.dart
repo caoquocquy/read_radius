@@ -7,14 +7,18 @@ class WallBooksCollection extends StatelessWidget {
   const WallBooksCollection({
     required this.books,
     required this.viewMode,
-    required this.onAddPressed,
+    required this.actionLabelBuilder,
+    required this.onActionPressed,
+    required this.isActionLoading,
     this.enableThumbnail = true,
     super.key,
   });
 
   final List<WallBook> books;
   final WallBooksViewMode viewMode;
-  final VoidCallback onAddPressed;
+  final String Function(WallBook book) actionLabelBuilder;
+  final ValueChanged<WallBook> onActionPressed;
+  final bool Function(WallBook book) isActionLoading;
   final bool enableThumbnail;
 
   @override
@@ -40,8 +44,18 @@ class WallBooksCollection extends StatelessWidget {
               title: Text(book.title),
               subtitle: Text(subtitle),
               trailing: FilledButton.tonal(
-                onPressed: onAddPressed,
-                child: const Text('Add'),
+                onPressed: isActionLoading(book)
+                    ? null
+                    : () {
+                        onActionPressed(book);
+                      },
+                child: isActionLoading(book)
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(actionLabelBuilder(book)),
               ),
             ),
           );
@@ -109,8 +123,18 @@ class WallBooksCollection extends StatelessWidget {
                     ),
                     const Spacer(),
                     FilledButton.tonal(
-                      onPressed: onAddPressed,
-                      child: const Text('Add'),
+                      onPressed: isActionLoading(book)
+                          ? null
+                          : () {
+                              onActionPressed(book);
+                            },
+                      child: isActionLoading(book)
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(actionLabelBuilder(book)),
                     ),
                   ],
                 ),

@@ -9,6 +9,61 @@ part of 'wall_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(WallLocalBookStatuses)
+final wallLocalBookStatusesProvider = WallLocalBookStatusesProvider._();
+
+final class WallLocalBookStatusesProvider
+    extends $NotifierProvider<WallLocalBookStatuses, Map<String, ShelfStatus>> {
+  WallLocalBookStatusesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wallLocalBookStatusesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallLocalBookStatusesHash();
+
+  @$internal
+  @override
+  WallLocalBookStatuses create() => WallLocalBookStatuses();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Map<String, ShelfStatus> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Map<String, ShelfStatus>>(value),
+    );
+  }
+}
+
+String _$wallLocalBookStatusesHash() =>
+    r'1c648b68df5990fe6855433d7982156f76a52a19';
+
+abstract class _$WallLocalBookStatuses
+    extends $Notifier<Map<String, ShelfStatus>> {
+  Map<String, ShelfStatus> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref =
+        this.ref as $Ref<Map<String, ShelfStatus>, Map<String, ShelfStatus>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<Map<String, ShelfStatus>, Map<String, ShelfStatus>>,
+              Map<String, ShelfStatus>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
 @ProviderFor(wallHttpClient)
 final wallHttpClientProvider = WallHttpClientProvider._();
 
@@ -89,7 +144,7 @@ final class WallRepositoryProvider
   }
 }
 
-String _$wallRepositoryHash() => r'e45fb831ca5658883aa0aba03fdb7017de062456';
+String _$wallRepositoryHash() => r'3e6f5b74dce0aa47d37ad28f28065d686f8ba0d4';
 
 @ProviderFor(WallSearchQuery)
 final wallSearchQueryProvider = WallSearchQueryProvider._();
@@ -273,3 +328,89 @@ final class WallTrendingResultsProvider
 
 String _$wallTrendingResultsHash() =>
     r'8a30237189ed17612700c23363a91984fb202a61';
+
+@ProviderFor(wallBookStatuses)
+final wallBookStatusesProvider = WallBookStatusesProvider._();
+
+final class WallBookStatusesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, ShelfStatus>>,
+          Map<String, ShelfStatus>,
+          FutureOr<Map<String, ShelfStatus>>
+        >
+    with
+        $FutureModifier<Map<String, ShelfStatus>>,
+        $FutureProvider<Map<String, ShelfStatus>> {
+  WallBookStatusesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wallBookStatusesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallBookStatusesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<String, ShelfStatus>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<String, ShelfStatus>> create(Ref ref) {
+    return wallBookStatuses(ref);
+  }
+}
+
+String _$wallBookStatusesHash() => r'e5700e575bd7ca7c5bdf0ad59924cb6fdef1fbdb';
+
+@ProviderFor(WallShelfActionController)
+final wallShelfActionControllerProvider = WallShelfActionControllerProvider._();
+
+final class WallShelfActionControllerProvider
+    extends $AsyncNotifierProvider<WallShelfActionController, void> {
+  WallShelfActionControllerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wallShelfActionControllerProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallShelfActionControllerHash();
+
+  @$internal
+  @override
+  WallShelfActionController create() => WallShelfActionController();
+}
+
+String _$wallShelfActionControllerHash() =>
+    r'd3f000e4c01662e6328a98414a105b8a61a57630';
+
+abstract class _$WallShelfActionController extends $AsyncNotifier<void> {
+  FutureOr<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<void>, void>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, void>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

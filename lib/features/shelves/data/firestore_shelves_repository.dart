@@ -8,6 +8,8 @@ class FirestoreShelvesRepository implements ShelvesRepository {
 
   final FirebaseFirestore _firestore;
 
+  static const int _whereInChunkSize = 10;
+
   @override
   Future<ShelvesByStatus> fetchShelvesForUser(String userId) async {
     final QuerySnapshot<Map<String, dynamic>> userBooksSnapshot =
@@ -53,6 +55,71 @@ class FirestoreShelvesRepository implements ShelvesRepository {
     }
 
     return grouped;
+  }
+
+  @override
+  Future<Map<String, ShelfStatus>> fetchBookStatusesForUser(
+    String userId,
+    List<String> bookIds,
+  ) async {
+    if (bookIds.isEmpty) {
+      return <String, ShelfStatus>{};
+    }
+
+    final Map<String, ShelfStatus> statuses = <String, ShelfStatus>{};
+
+    for (final List<String> chunk in _chunk(bookIds, _whereInChunkSize)) {
+      final QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+          .collection('userBooks')
+          .where('userId', isEqualTo: userId)
+          .where('bookId', whereIn: chunk)
+          .get();
+
+      for (final QueryDocumentSnapshot<Map<String, dynamic>> doc
+          in snapshot.docs) {
+        final Map<String, dynamic> data = doc.data();
+        final String? bookId = (data['bookId'] as String?)?.trim();
+        final ShelfStatus? status = shelfStatusFromStorage(
+          data['status'] as String?,
+        );
+        if (bookId == null || bookId.isEmpty || status == null) {
+          continue;
+        }
+        statuses[bookId] = status;
+      }
+    }
+
+    return statuses;
+  }
+
+  @override
+  Future<void> upsertBookStatusForUser({
+    required String userId,
+    required ShelfBookSeed book,
+    required ShelfStatus status,
+  }) async {
+    final String bookId = book.bookId.trim();
+    if (bookId.isEmpty) {
+      throw const FormatException('Book id cannot be empty.');
+    }
+
+    await _ensureBookExists(book);
+
+    final String docId = '${userId}_$bookId';
+    final DocumentReference<Map<String, dynamic>> userBookRef = _firestore
+        .collection('userBooks')
+        .doc(docId);
+
+    final DocumentSnapshot<Map<String, dynamic>> existing = await userBookRef
+        .get();
+
+    await userBookRef.set(<String, dynamic>{
+      'userId': userId,
+      'bookId': bookId,
+      'status': status.storageValue,
+      'updatedAt': FieldValue.serverTimestamp(),
+      if (!existing.exists) 'createdAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   _UserBookRecord? _toUserBookRecord(
@@ -146,7 +213,7 @@ class FirestoreShelvesRepository implements ShelvesRepository {
       return result;
     }
 
-    for (final List<String> chunk in _chunk(bookIds, 10)) {
+    for (final List<String> chunk in _chunk(bookIds, _whereInChunkSize)) {
       final QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
           .collection('books')
           .where(FieldPath.documentId, whereIn: chunk)
@@ -168,6 +235,28 @@ class FirestoreShelvesRepository implements ShelvesRepository {
           : values.length;
       yield values.sublist(index, end);
     }
+  }
+
+  Future<void> _ensureBookExists(ShelfBookSeed book) async {
+    final String bookId = book.bookId.trim();
+    final DocumentReference<Map<String, dynamic>> bookRef = _firestore
+        .collection('books')
+        .doc(bookId);
+
+    final DocumentSnapshot<Map<String, dynamic>> snapshot = await bookRef.get();
+    if (snapshot.exists) {
+      return;
+    }
+
+    await bookRef.set(<String, dynamic>{
+      'bookId': bookId,
+      'title': book.title.trim().isEmpty ? bookId : book.title.trim(),
+      'authors': book.authors,
+      if (book.thumbnailUrl != null && book.thumbnailUrl!.trim().isNotEmpty)
+        'thumbnailUrl': book.thumbnailUrl!.trim(),
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }
 

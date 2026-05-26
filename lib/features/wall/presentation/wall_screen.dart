@@ -5,6 +5,7 @@ import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar_button.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
+import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
 import 'package:read_radius/features/wall/presentation/widgets/wall_books_collection.dart';
 import 'package:read_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
@@ -25,6 +26,7 @@ class WallScreen extends ConsumerStatefulWidget {
 
 class _WallScreenState extends ConsumerState<WallScreen> {
   Timer? _debounce;
+  String? _pendingActionBookId;
 
   Future<void> _showAuthGuardSheet() {
     return showModalBottomSheet<void>(
@@ -40,15 +42,78 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     super.dispose();
   }
 
-  Future<void> _handleProtectedAction(AuthSessionState state) async {
-    if (state == AuthSessionState.authenticated) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Added to shelf.')));
+  Future<ShelfStatus?> _pickShelfStatus(ShelfStatus? currentStatus) {
+    return showModalBottomSheet<ShelfStatus>(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ShelfStatus.values
+                .map((ShelfStatus status) {
+                  final bool isSelected = status == currentStatus;
+                  return ListTile(
+                    leading: isSelected
+                        ? const Icon(Icons.check_rounded)
+                        : const SizedBox(width: 24),
+                    title: Text(status.actionLabel),
+                    onTap: () {
+                      Navigator.of(context).pop(status);
+                    },
+                  );
+                })
+                .toList(growable: false),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleBookAction({
+    required AuthSessionState state,
+    required WallBook book,
+    required ShelfStatus? currentStatus,
+  }) async {
+    if (state != AuthSessionState.authenticated) {
+      await _showAuthGuardSheet();
       return;
     }
 
-    await _showAuthGuardSheet();
+    final ShelfStatus? selectedStatus = await _pickShelfStatus(currentStatus);
+    if (selectedStatus == null) {
+      return;
+    }
+
+    setState(() {
+      _pendingActionBookId = book.id;
+    });
+
+    try {
+      await ref
+          .read(wallShelfActionControllerProvider.notifier)
+          .setBookStatus(book: book, status: selectedStatus);
+
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Saved as ${selectedStatus.actionLabel}.')),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
+    } finally {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _pendingActionBookId = null;
+      });
+    }
   }
 
   @override
@@ -66,7 +131,17 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     final AsyncValue<List<WallBook>> trending = ref.watch(
       wallTrendingResultsProvider,
     );
+    final AsyncValue<Map<String, ShelfStatus>> statusMapAsync = ref.watch(
+      wallBookStatusesProvider,
+    );
+    final AsyncValue<void> actionState = ref.watch(
+      wallShelfActionControllerProvider,
+    );
     final WallBooksViewMode viewMode = ref.watch(wallViewModeProvider);
+    final Map<String, ShelfStatus> statusMap = statusMapAsync.maybeWhen(
+      data: (Map<String, ShelfStatus> value) => value,
+      orElse: () => <String, ShelfStatus>{},
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -138,8 +213,21 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                                   books: books,
                                   viewMode: viewMode,
                                   enableThumbnail: true,
-                                  onAddPressed: () {
-                                    _handleProtectedAction(state);
+                                  actionLabelBuilder: (WallBook book) {
+                                    final ShelfStatus? status =
+                                        statusMap[book.id];
+                                    return status?.actionLabel ?? 'Add';
+                                  },
+                                  onActionPressed: (WallBook book) {
+                                    _handleBookAction(
+                                      state: state,
+                                      book: book,
+                                      currentStatus: statusMap[book.id],
+                                    );
+                                  },
+                                  isActionLoading: (WallBook book) {
+                                    return actionState.isLoading &&
+                                        _pendingActionBookId == book.id;
                                   },
                                 ),
                               ),
@@ -164,8 +252,20 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                             books: books,
                             viewMode: viewMode,
                             enableThumbnail: true,
-                            onAddPressed: () {
-                              _handleProtectedAction(state);
+                            actionLabelBuilder: (WallBook book) {
+                              final ShelfStatus? status = statusMap[book.id];
+                              return status?.actionLabel ?? 'Add';
+                            },
+                            onActionPressed: (WallBook book) {
+                              _handleBookAction(
+                                state: state,
+                                book: book,
+                                currentStatus: statusMap[book.id],
+                              );
+                            },
+                            isActionLoading: (WallBook book) {
+                              return actionState.isLoading &&
+                                  _pendingActionBookId == book.id;
                             },
                           );
                         },

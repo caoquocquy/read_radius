@@ -12,6 +12,17 @@ extension ShelfStatusX on ShelfStatus {
     }
   }
 
+  String get actionLabel {
+    switch (this) {
+      case ShelfStatus.wantToRead:
+        return 'Want to Read';
+      case ShelfStatus.reading:
+        return 'Reading';
+      case ShelfStatus.completed:
+        return 'Read';
+    }
+  }
+
   String get storageValue {
     switch (this) {
       case ShelfStatus.wantToRead:

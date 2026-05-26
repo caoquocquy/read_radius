@@ -35,9 +35,60 @@ service cloud.firestore {
       return isSignedIn() && resource.data.followerId == request.auth.uid;
     }
 
+    function validShelfStatus(status) {
+      return status in ['want_to_read', 'reading', 'completed'];
+    }
+
+    function userBookCreateIsValid() {
+      return isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.userId is string
+        && request.resource.data.bookId is string
+        && validShelfStatus(request.resource.data.status)
+        && request.resource.data.keys().hasOnly([
+          'userId',
+          'bookId',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ]);
+    }
+
+    function userBookUpdateIsValid() {
+      return isSignedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.bookId == resource.data.bookId
+        && validShelfStatus(request.resource.data.status)
+        && request.resource.data.keys().hasOnly([
+          'userId',
+          'bookId',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ]);
+    }
+
+    function bookCreateIsValid(bookId) {
+      return isSignedIn()
+        && request.resource.data.bookId == bookId
+        && request.resource.data.bookId is string
+        && request.resource.data.title is string
+        && request.resource.data.authors is list
+        && request.resource.data.keys().hasOnly([
+          'bookId',
+          'title',
+          'authors',
+          'thumbnailUrl',
+          'createdAt',
+          'updatedAt',
+        ]);
+    }
+
     match /books/{bookId} {
       allow read: if true;
-      allow write: if false;
+      allow create: if bookCreateIsValid(bookId);
+      allow update, delete: if false;
     }
 
     match /users/{userId} {
@@ -47,10 +98,9 @@ service cloud.firestore {
 
     match /userBooks/{id} {
       allow read: if true;
-      allow create: if isSignedIn()
-        && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isSignedIn()
-        && resource.data.userId == request.auth.uid;
+      allow create: if userBookCreateIsValid();
+      allow update: if userBookUpdateIsValid();
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
 
     match /reviews/{reviewId} {
