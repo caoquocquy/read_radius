@@ -17,8 +17,6 @@ class WallScreen extends ConsumerStatefulWidget {
 
   static const String routeName = 'wall-screen';
   static const String routePath = '/wall';
-  static const bool enableTrendingBooks = true;
-  static const bool enableThumbnail = false;
 
   @override
   ConsumerState<WallScreen> createState() => _WallScreenState();
@@ -64,9 +62,9 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     final AsyncValue<List<WallBook>> search = ref.watch(
       wallSearchResultsProvider,
     );
-    final AsyncValue<List<WallBook>>? trending = WallScreen.enableTrendingBooks
-        ? ref.watch(wallTrendingResultsProvider)
-        : null;
+    final AsyncValue<List<WallBook>> trending = ref.watch(
+      wallTrendingResultsProvider,
+    );
     final WallBooksViewMode viewMode = ref.watch(wallViewModeProvider);
 
     return Scaffold(
@@ -151,66 +149,44 @@ class _WallScreenState extends ConsumerState<WallScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: query.isEmpty
-                    ? WallScreen.enableTrendingBooks
-                          ? trending!.when(
-                              data: (List<WallBook> books) {
-                                if (books.isEmpty) {
-                                  return const Center(
-                                    child: Text('No trending books right now.'),
-                                  );
-                                }
+                    ? trending.when(
+                        data: (List<WallBook> books) {
+                          if (books.isEmpty) {
+                            return const Center(
+                              child: Text('No trending books right now.'),
+                            );
+                          }
 
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    const Text(
-                                      'Trending now',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Expanded(
-                                      child: WallBooksCollection(
-                                        books: books,
-                                        viewMode: viewMode,
-                                        enableThumbnail:
-                                            WallScreen.enableThumbnail,
-                                        onAddPressed: () {
-                                          _handleProtectedAction(state);
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                              loading: () => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                              error: (Object error, StackTrace stackTrace) {
-                                return Center(
-                                  child: Text('Trending failed: $error'),
-                                );
-                              },
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                const Text('Trending is temporarily disabled.'),
-                                const SizedBox(height: 8),
-                                Expanded(
-                                  child: WallBooksCollection(
-                                    books: const <WallBook>[],
-                                    viewMode: viewMode,
-                                    enableThumbnail: WallScreen.enableThumbnail,
-                                    onAddPressed: () {
-                                      _handleProtectedAction(state);
-                                    },
-                                  ),
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              const Text(
+                                'Trending now',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
                                 ),
-                              ],
-                            )
+                              ),
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: WallBooksCollection(
+                                  books: books,
+                                  viewMode: viewMode,
+                                  enableThumbnail: true,
+                                  onAddPressed: () {
+                                    _handleProtectedAction(state);
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (Object error, StackTrace stackTrace) {
+                          return Center(child: Text('Trending failed: $error'));
+                        },
+                      )
                     : search.when(
                         data: (List<WallBook> books) {
                           if (books.isEmpty) {
@@ -222,7 +198,7 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                           return WallBooksCollection(
                             books: books,
                             viewMode: viewMode,
-                            enableThumbnail: WallScreen.enableThumbnail,
+                            enableThumbnail: true,
                             onAddPressed: () {
                               _handleProtectedAction(state);
                             },
