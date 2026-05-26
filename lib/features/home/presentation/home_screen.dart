@@ -6,11 +6,11 @@ import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
-import 'package:read_radius/features/wall/domain/wall_book.dart';
-import 'package:read_radius/features/wall/presentation/book_details_screen.dart';
-import 'package:read_radius/features/wall/presentation/widgets/wall_books_collection.dart';
-import 'package:read_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
-import 'package:read_radius/features/wall/providers/wall_providers.dart';
+import 'package:read_radius/features/home/domain/wall_book.dart';
+import 'package:read_radius/features/home/presentation/book_details_screen.dart';
+import 'package:read_radius/features/home/presentation/widgets/wall_books_collection.dart';
+import 'package:read_radius/features/home/presentation/widgets/wall_view_mode_toggle.dart';
+import 'package:read_radius/features/home/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

@@ -8,7 +8,7 @@ import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
 import 'package:read_radius/features/shelves/presentation/widgets/shelves_section.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
-import 'package:read_radius/features/wall/presentation/book_details_screen.dart';
+import 'package:read_radius/features/home/presentation/book_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

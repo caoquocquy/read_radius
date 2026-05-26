@@ -1,4 +1,4 @@
-import 'package:read_radius/features/wall/providers/wall_providers.dart';
+import 'package:read_radius/features/home/providers/wall_providers.dart';
 import 'package:flutter/material.dart';
 
 class WallViewModeToggle extends StatelessWidget {

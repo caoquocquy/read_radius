@@ -1,6 +1,6 @@
-import 'package:read_radius/features/wall/domain/wall_book.dart';
-import 'package:read_radius/features/wall/domain/wall_book_details.dart';
-import 'package:read_radius/features/wall/domain/wall_repository.dart';
+import 'package:read_radius/features/home/domain/wall_book.dart';
+import 'package:read_radius/features/home/domain/wall_book_details.dart';
+import 'package:read_radius/features/home/domain/wall_repository.dart';
 
 class ExampleWallRepository implements WallRepository {
   ExampleWallRepository();

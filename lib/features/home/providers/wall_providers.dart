@@ -5,11 +5,11 @@ import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
-import 'package:read_radius/features/wall/data/example_wall_repository.dart';
-import 'package:read_radius/features/wall/data/google_books_wall_repository.dart';
-import 'package:read_radius/features/wall/domain/wall_book.dart';
-import 'package:read_radius/features/wall/domain/wall_book_details.dart';
-import 'package:read_radius/features/wall/domain/wall_repository.dart';
+import 'package:read_radius/features/home/data/example_wall_repository.dart';
+import 'package:read_radius/features/home/data/google_books_wall_repository.dart';
+import 'package:read_radius/features/home/domain/wall_book.dart';
+import 'package:read_radius/features/home/domain/wall_book_details.dart';
+import 'package:read_radius/features/home/domain/wall_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

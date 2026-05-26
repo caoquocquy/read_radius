@@ -1,5 +1,5 @@
-import 'package:read_radius/features/wall/domain/wall_book.dart';
-import 'package:read_radius/features/wall/providers/wall_providers.dart';
+import 'package:read_radius/features/home/domain/wall_book.dart';
+import 'package:read_radius/features/home/providers/wall_providers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 

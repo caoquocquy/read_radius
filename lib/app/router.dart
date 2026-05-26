@@ -1,8 +1,8 @@
 import 'package:read_radius/app/app_tab_scaffold.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/presentation/shelves_screen.dart';
-import 'package:read_radius/features/wall/presentation/book_details_screen.dart';
-import 'package:read_radius/features/wall/presentation/home_screen.dart';
+import 'package:read_radius/features/home/presentation/book_details_screen.dart';
+import 'package:read_radius/features/home/presentation/home_screen.dart';
 import 'package:read_radius/features/splash/presentation/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 

@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:read_radius/features/wall/domain/wall_book.dart';
-import 'package:read_radius/features/wall/domain/wall_book_details.dart';
-import 'package:read_radius/features/wall/domain/wall_repository.dart';
+import 'package:read_radius/features/home/domain/wall_book.dart';
+import 'package:read_radius/features/home/domain/wall_book_details.dart';
+import 'package:read_radius/features/home/domain/wall_repository.dart';
 import 'package:http/http.dart' as http;
 
 class GoogleBooksWallRepository implements WallRepository {
@@ -33,8 +33,6 @@ class GoogleBooksWallRepository implements WallRepository {
   @override
   Future<List<WallBook>> fetchTrendingBooks() {
     return _fetchBooks(<String, String>{
-      // Google Books has no dedicated trending endpoint.
-      // Use a broad subject query for a dynamic, popular-feeling feed.
       'q': 'subject:fiction',
       'orderBy': 'newest',
       'maxResults': _maxResults,
@@ -326,8 +324,6 @@ class GoogleBooksWallRepository implements WallRepository {
       return rawUrl.replaceFirst('http://', 'https://');
     }
 
-    // Keep the original query/path intact and only force HTTPS.
-    // Rebuilding query parameters can drop/alter provider-specific values.
     return uri.replace(scheme: 'https').toString();
   }
 

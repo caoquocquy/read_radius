@@ -11,7 +11,7 @@
 Follow a feature-first approach. Code should be clean, modular, and split into the following directories under `lib/`:
 - `lib/core/`: Common themes, network clients, constants, utilities.
 - `lib/features/auth/`: Facebook authentication widgets, services, and Riverpod providers.
-- `lib/features/wall/`: Public search UI, Google Books API client, book grids.
+- `lib/features/home/`: Public search UI, Google Books API client, book grids.
 - `lib/features/profile/`: Profile/account surfaces such as the profile screen and sign-out action.
 - `lib/features/shelves/`: Managing user book statuses (Want to Read, Reading, Completed).
 - `lib/features/reviews/`: Review grids, writing reviews, star ratings.
