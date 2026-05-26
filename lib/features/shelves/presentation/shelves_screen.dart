@@ -8,6 +8,7 @@ import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
 import 'package:read_radius/features/shelves/presentation/widgets/shelves_section.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
+import 'package:read_radius/features/wall/presentation/book_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -126,16 +127,34 @@ class _AuthenticatedShelvesBody extends ConsumerWidget {
             ShelvesSection(
               title: ShelfStatus.wantToRead.label,
               books: shelves[ShelfStatus.wantToRead] ?? const <ShelfBook>[],
+              onBookTap: (ShelfBook book) {
+                context.pushNamed(
+                  BookDetailsScreen.routeName,
+                  pathParameters: <String, String>{'bookId': book.bookId},
+                );
+              },
             ),
             const SizedBox(height: 16),
             ShelvesSection(
               title: ShelfStatus.reading.label,
               books: shelves[ShelfStatus.reading] ?? const <ShelfBook>[],
+              onBookTap: (ShelfBook book) {
+                context.pushNamed(
+                  BookDetailsScreen.routeName,
+                  pathParameters: <String, String>{'bookId': book.bookId},
+                );
+              },
             ),
             const SizedBox(height: 16),
             ShelvesSection(
               title: ShelfStatus.completed.label,
               books: shelves[ShelfStatus.completed] ?? const <ShelfBook>[],
+              onBookTap: (ShelfBook book) {
+                context.pushNamed(
+                  BookDetailsScreen.routeName,
+                  pathParameters: <String, String>{'bookId': book.bookId},
+                );
+              },
             ),
           ],
         );

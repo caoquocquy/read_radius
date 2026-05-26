@@ -8,6 +8,7 @@ class WallBooksCollection extends StatelessWidget {
     required this.books,
     required this.viewMode,
     required this.actionLabelBuilder,
+    required this.onBookTap,
     required this.onActionPressed,
     required this.isActionLoading,
     this.enableThumbnail = true,
@@ -17,6 +18,7 @@ class WallBooksCollection extends StatelessWidget {
   final List<WallBook> books;
   final WallBooksViewMode viewMode;
   final String Function(WallBook book) actionLabelBuilder;
+  final ValueChanged<WallBook> onBookTap;
   final ValueChanged<WallBook> onActionPressed;
   final bool Function(WallBook book) isActionLoading;
   final bool enableThumbnail;
@@ -37,6 +39,9 @@ class WallBooksCollection extends StatelessWidget {
 
           return Card(
             child: ListTile(
+              onTap: () {
+                onBookTap(book);
+              },
               leading: _BookThumbnail(
                 url: book.thumbnailUrl,
                 enabled: enableThumbnail,
@@ -96,32 +101,45 @@ class WallBooksCollection extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: 72,
-                        height: 104,
-                        child: _BookThumbnail(
-                          url: book.thumbnailUrl,
-                          enabled: enableThumbnail,
+                    Expanded(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          onBookTap(book);
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Align(
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                width: 72,
+                                height: 104,
+                                child: _BookThumbnail(
+                                  url: book.thumbnailUrl,
+                                  enabled: enableThumbnail,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              book.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              subtitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      book.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const Spacer(),
                     FilledButton.tonal(
                       onPressed: isActionLoading(book)
                           ? null

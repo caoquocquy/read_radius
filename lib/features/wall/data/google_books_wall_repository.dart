@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/domain/wall_book_details.dart';
 import 'package:read_radius/features/wall/domain/wall_repository.dart';
 import 'package:http/http.dart' as http;
 
@@ -39,6 +40,55 @@ class GoogleBooksWallRepository implements WallRepository {
       'maxResults': _maxResults,
       'printType': 'books',
     });
+  }
+
+  @override
+  Future<WallBookDetails> fetchBookDetails(String bookId) async {
+    final String normalizedBookId = bookId.trim();
+    if (normalizedBookId.isEmpty) {
+      throw const FormatException('Book id cannot be empty.');
+    }
+
+    final http.Response response = await _requestBookById(
+      normalizedBookId,
+      includeApiKey: apiKey.isNotEmpty,
+    );
+
+    if (response.statusCode == 400 && apiKey.isNotEmpty) {
+      final String loweredBody = response.body.toLowerCase();
+      final bool keyIssue =
+          loweredBody.contains('api_key_invalid') ||
+          loweredBody.contains('keyinvalid') ||
+          loweredBody.contains('apikey') ||
+          loweredBody.contains('api key');
+      if (keyIssue) {
+        final http.Response fallback = await _requestBookById(
+          normalizedBookId,
+          includeApiKey: false,
+        );
+        if (fallback.statusCode >= 200 && fallback.statusCode < 300) {
+          return _decodeBookDetails(fallback.body);
+        }
+
+        throw Exception(_buildHttpErrorMessage(fallback));
+      }
+    }
+
+    if (response.statusCode == 429 && apiKey.isNotEmpty) {
+      final http.Response fallback = await _requestBookById(
+        normalizedBookId,
+        includeApiKey: false,
+      );
+      if (fallback.statusCode >= 200 && fallback.statusCode < 300) {
+        return _decodeBookDetails(fallback.body);
+      }
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(_buildHttpErrorMessage(response));
+    }
+
+    return _decodeBookDetails(response.body);
   }
 
   Future<List<WallBook>> _fetchBooks(
@@ -100,6 +150,19 @@ class GoogleBooksWallRepository implements WallRepository {
     return _httpClient.get(uri);
   }
 
+  Future<http.Response> _requestBookById(
+    String bookId, {
+    required bool includeApiKey,
+  }) {
+    final Uri uri = _baseUri
+        .replace(path: '${_baseUri.path}/$bookId')
+        .replace(
+          queryParameters: <String, String>{if (includeApiKey) 'key': apiKey},
+        );
+
+    return _httpClient.get(uri);
+  }
+
   List<WallBook> _decodeBooks(String responseBody) {
     final Object? decoded = jsonDecode(responseBody);
     if (decoded is! Map<String, dynamic>) {
@@ -115,6 +178,17 @@ class GoogleBooksWallRepository implements WallRepository {
         .map(_mapBook)
         .whereType<WallBook>()
         .toList(growable: false);
+  }
+
+  WallBookDetails _decodeBookDetails(String responseBody) {
+    final Object? decoded = jsonDecode(responseBody);
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Invalid response format from Google Books API.',
+      );
+    }
+
+    return _mapBookDetails(decoded);
   }
 
   String _buildHttpErrorMessage(http.Response response) {
@@ -183,6 +257,65 @@ class GoogleBooksWallRepository implements WallRepository {
     );
   }
 
+  WallBookDetails _mapBookDetails(Map<String, dynamic> json) {
+    final String? id = json['id'] as String?;
+    final Map<String, dynamic>? volumeInfo =
+        json['volumeInfo'] as Map<String, dynamic>?;
+    final String? title = (volumeInfo?['title'] as String?)?.trim();
+    final String normalizedId = (id ?? '').trim();
+    if (normalizedId.isEmpty || title == null || title.isEmpty) {
+      throw const FormatException(
+        'Google Books details payload is missing id/title.',
+      );
+    }
+
+    final List<String> authors =
+        (volumeInfo?['authors'] as List<dynamic>? ?? <dynamic>[])
+            .whereType<String>()
+            .map((String name) => name.trim())
+            .where((String name) => name.isNotEmpty)
+            .toList(growable: false);
+
+    final List<String> categories =
+        (volumeInfo?['categories'] as List<dynamic>? ?? <dynamic>[])
+            .whereType<String>()
+            .map((String category) => category.trim())
+            .where((String category) => category.isNotEmpty)
+            .toList(growable: false);
+
+    final Map<String, dynamic>? imageLinks =
+        volumeInfo?['imageLinks'] as Map<String, dynamic>?;
+    final String? thumbnailUrl =
+        (imageLinks?['smallThumbnail'] as String?) ??
+        (imageLinks?['thumbnail'] as String?);
+
+    final Object? pageCountRaw = volumeInfo?['pageCount'];
+    final int? pageCount = pageCountRaw is int ? pageCountRaw : null;
+
+    final String? publisher = (volumeInfo?['publisher'] as String?)?.trim();
+    final String? publishedDate = (volumeInfo?['publishedDate'] as String?)
+        ?.trim();
+    final String? description = (volumeInfo?['description'] as String?)?.trim();
+    final String? previewLink = (volumeInfo?['previewLink'] as String?)?.trim();
+
+    return WallBookDetails(
+      id: normalizedId,
+      title: title,
+      authors: authors,
+      thumbnailUrl: _normalizeThumbnailUrl(thumbnailUrl),
+      description: description == null || description.isEmpty
+          ? null
+          : description,
+      pageCount: pageCount,
+      publishedDate: publishedDate == null || publishedDate.isEmpty
+          ? null
+          : publishedDate,
+      categories: categories,
+      publisher: publisher == null || publisher.isEmpty ? null : publisher,
+      previewLink: _normalizePreviewUrl(previewLink),
+    );
+  }
+
   String? _normalizeThumbnailUrl(String? rawUrl) {
     if (rawUrl == null || rawUrl.isEmpty) {
       return null;
@@ -195,6 +328,19 @@ class GoogleBooksWallRepository implements WallRepository {
 
     // Keep the original query/path intact and only force HTTPS.
     // Rebuilding query parameters can drop/alter provider-specific values.
+    return uri.replace(scheme: 'https').toString();
+  }
+
+  String? _normalizePreviewUrl(String? rawUrl) {
+    if (rawUrl == null || rawUrl.isEmpty) {
+      return null;
+    }
+
+    final Uri? uri = Uri.tryParse(rawUrl);
+    if (uri == null) {
+      return rawUrl;
+    }
+
     return uri.replace(scheme: 'https').toString();
   }
 }

@@ -3,10 +3,16 @@ import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:flutter/material.dart';
 
 class ShelvesSection extends StatelessWidget {
-  const ShelvesSection({required this.title, required this.books, super.key});
+  const ShelvesSection({
+    required this.title,
+    required this.books,
+    required this.onBookTap,
+    super.key,
+  });
 
   final String title;
   final List<ShelfBook> books;
+  final ValueChanged<ShelfBook> onBookTap;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +36,9 @@ class ShelvesSection extends StatelessWidget {
 
             return Card(
               child: ListTile(
+                onTap: () {
+                  onBookTap(book);
+                },
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 6,
@@ -73,7 +82,7 @@ class _ShelfBookThumbnail extends StatelessWidget {
         placeholder: (BuildContext context, String _) {
           return const _ShelfThumbnailPlaceholder();
         },
-        errorWidget: (BuildContext context, String _, Object __) {
+        errorWidget: (BuildContext context, String failedUrl, Object error) {
           return const _ShelfThumbnailPlaceholder();
         },
       ),

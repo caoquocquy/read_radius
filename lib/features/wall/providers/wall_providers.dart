@@ -7,6 +7,7 @@ import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
 import 'package:read_radius/features/wall/data/example_wall_repository.dart';
 import 'package:read_radius/features/wall/data/google_books_wall_repository.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/domain/wall_book_details.dart';
 import 'package:read_radius/features/wall/domain/wall_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -81,6 +82,43 @@ Future<List<WallBook>> wallSearchResults(Ref ref) async {
 Future<List<WallBook>> wallTrendingResults(Ref ref) async {
   final WallRepository repo = ref.watch(wallRepositoryProvider);
   return repo.fetchTrendingBooks();
+}
+
+@riverpod
+Future<WallBookDetails> wallBookDetails(Ref ref, String bookId) async {
+  final String normalizedBookId = bookId.trim();
+  if (normalizedBookId.isEmpty) {
+    throw const FormatException('Book id cannot be empty.');
+  }
+
+  final WallRepository repo = ref.watch(wallRepositoryProvider);
+  return repo.fetchBookDetails(normalizedBookId);
+}
+
+@riverpod
+Future<ShelfStatus?> wallBookStatus(Ref ref, String bookId) async {
+  final String normalizedBookId = bookId.trim();
+  if (normalizedBookId.isEmpty) {
+    return null;
+  }
+
+  final AuthSessionState authState = await ref.watch(
+    authSessionProvider.future,
+  );
+  if (authState != AuthSessionState.authenticated) {
+    return null;
+  }
+
+  final User? user = FirebaseAuth.instance.currentUser;
+  final String? userId = user?.uid;
+  if (userId == null || userId.isEmpty) {
+    return null;
+  }
+
+  final ShelvesRepository shelvesRepo = ref.watch(shelvesRepositoryProvider);
+  final Map<String, ShelfStatus> statuses = await shelvesRepo
+      .fetchBookStatusesForUser(userId, <String>[normalizedBookId]);
+  return statuses[normalizedBookId];
 }
 
 @riverpod
@@ -160,6 +198,7 @@ class WallShelfActionController extends _$WallShelfActionController {
       }
 
       ref.invalidate(wallBookStatusesProvider);
+      ref.invalidate(wallBookStatusProvider(book.id));
       ref.invalidate(shelvesByStatusProvider);
       state = const AsyncData<void>(null);
     } catch (error, stackTrace) {

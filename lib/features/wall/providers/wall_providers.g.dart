@@ -329,6 +329,156 @@ final class WallTrendingResultsProvider
 String _$wallTrendingResultsHash() =>
     r'8a30237189ed17612700c23363a91984fb202a61';
 
+@ProviderFor(wallBookDetails)
+final wallBookDetailsProvider = WallBookDetailsFamily._();
+
+final class WallBookDetailsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<WallBookDetails>,
+          WallBookDetails,
+          FutureOr<WallBookDetails>
+        >
+    with $FutureModifier<WallBookDetails>, $FutureProvider<WallBookDetails> {
+  WallBookDetailsProvider._({
+    required WallBookDetailsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'wallBookDetailsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallBookDetailsHash();
+
+  @override
+  String toString() {
+    return r'wallBookDetailsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<WallBookDetails> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<WallBookDetails> create(Ref ref) {
+    final argument = this.argument as String;
+    return wallBookDetails(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is WallBookDetailsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$wallBookDetailsHash() => r'78b6ffe8a666c2fe3eb829d9d2287393ea3fbf43';
+
+final class WallBookDetailsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<WallBookDetails>, String> {
+  WallBookDetailsFamily._()
+    : super(
+        retry: null,
+        name: r'wallBookDetailsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  WallBookDetailsProvider call(String bookId) =>
+      WallBookDetailsProvider._(argument: bookId, from: this);
+
+  @override
+  String toString() => r'wallBookDetailsProvider';
+}
+
+@ProviderFor(wallBookStatus)
+final wallBookStatusProvider = WallBookStatusFamily._();
+
+final class WallBookStatusProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<ShelfStatus?>,
+          ShelfStatus?,
+          FutureOr<ShelfStatus?>
+        >
+    with $FutureModifier<ShelfStatus?>, $FutureProvider<ShelfStatus?> {
+  WallBookStatusProvider._({
+    required WallBookStatusFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'wallBookStatusProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$wallBookStatusHash();
+
+  @override
+  String toString() {
+    return r'wallBookStatusProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<ShelfStatus?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<ShelfStatus?> create(Ref ref) {
+    final argument = this.argument as String;
+    return wallBookStatus(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is WallBookStatusProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$wallBookStatusHash() => r'6dad16e0cbc4d4bf138228ad145a131d8729a34f';
+
+final class WallBookStatusFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<ShelfStatus?>, String> {
+  WallBookStatusFamily._()
+    : super(
+        retry: null,
+        name: r'wallBookStatusProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  WallBookStatusProvider call(String bookId) =>
+      WallBookStatusProvider._(argument: bookId, from: this);
+
+  @override
+  String toString() => r'wallBookStatusProvider';
+}
+
 @ProviderFor(wallBookStatuses)
 final wallBookStatusesProvider = WallBookStatusesProvider._();
 
@@ -368,7 +518,7 @@ final class WallBookStatusesProvider
   }
 }
 
-String _$wallBookStatusesHash() => r'e5700e575bd7ca7c5bdf0ad59924cb6fdef1fbdb';
+String _$wallBookStatusesHash() => r'612f4657a7c0dea0db6cf324ea913582fce52d16';
 
 @ProviderFor(WallShelfActionController)
 final wallShelfActionControllerProvider = WallShelfActionControllerProvider._();
@@ -395,7 +545,7 @@ final class WallShelfActionControllerProvider
 }
 
 String _$wallShelfActionControllerHash() =>
-    r'd3f000e4c01662e6328a98414a105b8a61a57630';
+    r'29af1a5428cb25d1c2126f8ae6db403d088eda88';
 
 abstract class _$WallShelfActionController extends $AsyncNotifier<void> {
   FutureOr<void> build();

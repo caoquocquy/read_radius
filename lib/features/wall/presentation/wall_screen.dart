@@ -7,6 +7,7 @@ import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
+import 'package:read_radius/features/wall/presentation/book_details_screen.dart';
 import 'package:read_radius/features/wall/presentation/widgets/wall_books_collection.dart';
 import 'package:read_radius/features/wall/presentation/widgets/wall_view_mode_toggle.dart';
 import 'package:read_radius/features/wall/providers/wall_providers.dart';
@@ -107,12 +108,11 @@ class _WallScreenState extends ConsumerState<WallScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(error.toString())));
     } finally {
-      if (!mounted) {
-        return;
+      if (mounted) {
+        setState(() {
+          _pendingActionBookId = null;
+        });
       }
-      setState(() {
-        _pendingActionBookId = null;
-      });
     }
   }
 
@@ -218,6 +218,14 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                                         statusMap[book.id];
                                     return status?.actionLabel ?? 'Add';
                                   },
+                                  onBookTap: (WallBook book) {
+                                    context.pushNamed(
+                                      BookDetailsScreen.routeName,
+                                      pathParameters: <String, String>{
+                                        'bookId': book.id,
+                                      },
+                                    );
+                                  },
                                   onActionPressed: (WallBook book) {
                                     _handleBookAction(
                                       state: state,
@@ -255,6 +263,14 @@ class _WallScreenState extends ConsumerState<WallScreen> {
                             actionLabelBuilder: (WallBook book) {
                               final ShelfStatus? status = statusMap[book.id];
                               return status?.actionLabel ?? 'Add';
+                            },
+                            onBookTap: (WallBook book) {
+                              context.pushNamed(
+                                BookDetailsScreen.routeName,
+                                pathParameters: <String, String>{
+                                  'bookId': book.id,
+                                },
+                              );
                             },
                             onActionPressed: (WallBook book) {
                               _handleBookAction(
