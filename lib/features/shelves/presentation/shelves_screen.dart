@@ -1,6 +1,8 @@
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
+import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar_button.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
@@ -8,6 +10,7 @@ import 'package:read_radius/features/shelves/presentation/widgets/shelves_sectio
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ShelvesScreen extends ConsumerWidget {
   const ShelvesScreen({super.key});
@@ -26,13 +29,27 @@ class ShelvesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<AuthSessionState> session = ref.watch(authSessionProvider);
+    final AsyncValue<String?> photoUrl = ref.watch(authUserPhotoUrlProvider);
     final AuthSessionState authState = session.maybeWhen(
       data: (AuthSessionState value) => value,
       orElse: () => AuthSessionState.guest,
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Shelves')),
+      appBar: AppBar(
+        leadingWidth: 52,
+        leading: UserPhotoAvatarButton(
+          authState: authState,
+          photoUrl: photoUrl,
+          onGuestTap: () {
+            _showAuthGuardSheet(context);
+          },
+          onAuthenticatedTap: () {
+            context.pushNamed(ProfileScreen.routeName);
+          },
+        ),
+        title: const Text('Shelves'),
+      ),
       body: SafeArea(
         child: authState == AuthSessionState.guest
             ? _GuestShelvesPlaceholder(

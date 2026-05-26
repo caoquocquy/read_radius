@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
+import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar_button.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/wall/domain/wall_book.dart';
@@ -70,49 +71,13 @@ class _WallScreenState extends ConsumerState<WallScreen> {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 52,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () {
-                if (state == AuthSessionState.guest) {
-                  _showAuthGuardSheet();
-                  return;
-                }
-
-                context.pushNamed(ProfileScreen.routeName);
-              },
-              child: photoUrl.when(
-                data: (String? value) {
-                  final String? trimmed = value?.trim();
-                  if (trimmed == null || trimmed.isEmpty) {
-                    return const CircleAvatar(
-                      radius: 16,
-                      child: Icon(Icons.person, size: 18),
-                    );
-                  }
-
-                  return CircleAvatar(
-                    radius: 16,
-                    backgroundImage: NetworkImage(trimmed),
-                  );
-                },
-                loading: () => const CircleAvatar(
-                  radius: 16,
-                  child: SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                ),
-                error: (_, _) => const CircleAvatar(
-                  radius: 16,
-                  child: Icon(Icons.person, size: 18),
-                ),
-              ),
-            ),
-          ),
+        leading: UserPhotoAvatarButton(
+          authState: state,
+          photoUrl: photoUrl,
+          onGuestTap: _showAuthGuardSheet,
+          onAuthenticatedTap: () {
+            context.pushNamed(ProfileScreen.routeName);
+          },
         ),
         titleSpacing: 8,
         title: SizedBox(
