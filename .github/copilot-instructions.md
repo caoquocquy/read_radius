@@ -31,20 +31,34 @@ Layer boundaries must be enforced:
    - `/users/{userId}`: Profiles.
    - `/books/{bookId}`: Created ONLY when a book is first shelved or reviewed. Uses Google Books API ID as the Document ID.
    - `/reviews/{reviewId}`: Root collection containing `bookId` and `userId` for quick querying.
-   - `/userBooks/{userId_bookId}`: Composite ID documents managing user reading statuses (`want_to_read`, `reading`, `completed`).
+   - `/userBooks/{userId_bookId}`: Composite ID documents managing user reading statuses (`want_to_read`, `reading`, `completed`) and optional reading progress fields.
+   - `userBooks` progress fields are **percent-only**. Allowed progress keys are `currentPercent` (0-100) and `progressUpdatedAt`.
+   - Do not introduce `currentPage` or `totalPages` in models, writes, or rules.
    - `/userFollows/{followerId_followeeId}`: Directed follow edges containing `followerId`, `followeeId`, `createdAt`, and optional `updatedAt`.
 4. **Firestore Security Rule Intent**:
    - Guests can read public browse content (`/books` and public review content) but cannot write user-owned records.
    - `/users/{userId}` writes are owner-only (`request.auth.uid == userId`).
    - `/userBooks/{userId_bookId}` writes are owner-only and must match the authenticated user.
+   - `/userBooks/{userId_bookId}` allowed keys: `userId`, `bookId`, `status`, `currentPercent`, `progressUpdatedAt`, `createdAt`, `updatedAt`.
+   - `currentPercent` must be an integer between 0 and 100 when present.
    - `/reviews/{reviewId}` create, update, and delete are owner-only; public reads are allowed.
    - `/userFollows/{followerId_followeeId}` create/delete are follower-only (`request.auth.uid == followerId`), updates are disallowed, and self-follow is denied.
    - Deny all writes when unauthenticated.
+
+## Firebase CLI Project Config
+- The repository now includes Firebase deploy config files:
+  - `firebase.json` for Firestore rules/indexes mapping.
+  - `.firebaserc` with default project alias `readradius-c499b`.
+- Prefer these commands for rule/index publishing from repo root:
+  - `firebase deploy --only firestore:rules`
+  - `firebase deploy --only firestore:indexes`
+- Keep security rules and index definitions source-controlled and deployed from these files.
 
 ## UX Behavior Constraints
 - Keep protected write actions (shelf mutations, reviews) behind `AuthGuardSheet` for guests.
 - Keep sign-out in the Profile screen under `lib/features/profile/`, not inline in wall/feed screens.
 - Avatar entry behavior: guest users should be prompted to authenticate; authenticated users may navigate to Profile.
+- Reading progress UX is percent-driven: show progress bar + quick-select percentage actions (10, 20, ... 100), not manual page-number input.
 
 ## Code Generation & Style Guidelines
 - **Riverpod**: Always use `@riverpod` on classes extending `_$ClassName` or functions for app/business state. Avoid `ChangeNotifierProvider`. `StateProvider` is allowed only for simple ephemeral UI-only state.
@@ -75,3 +89,4 @@ Layer boundaries must be enforced:
 - Run `flutter analyze` and keep touched code free of analyzer errors.
 - Run `flutter test` for impacted areas before finishing.
 - Any behavior change must include matching tests (unit/widget; integration when relevant).
+- If `firestore.rules` or `firestore.indexes.json` changes, deploy the updated artifact via Firebase CLI before closing the task.
