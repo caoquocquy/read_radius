@@ -2,7 +2,7 @@ import 'package:read_radius/app/app_tab_scaffold.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/presentation/shelves_screen.dart';
 import 'package:read_radius/features/wall/presentation/book_details_screen.dart';
-import 'package:read_radius/features/wall/presentation/wall_screen.dart';
+import 'package:read_radius/features/wall/presentation/home_screen.dart';
 import 'package:read_radius/features/splash/presentation/splash_screen.dart';
 import 'package:go_router/go_router.dart';
 
@@ -22,9 +22,9 @@ final GoRouter appRouter = GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
-              path: WallScreen.routePath,
-              name: WallScreen.routeName,
-              builder: (context, state) => const WallScreen(),
+              path: HomeScreen.routePath,
+              name: HomeScreen.routeName,
+              builder: (context, state) => const HomeScreen(),
             ),
           ],
         ),

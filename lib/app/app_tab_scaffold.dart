@@ -22,7 +22,7 @@ class AppTabScaffold extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.auto_stories_outlined),
             selectedIcon: Icon(Icons.auto_stories),
-            label: 'Wall',
+            label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.collections_bookmark_outlined),

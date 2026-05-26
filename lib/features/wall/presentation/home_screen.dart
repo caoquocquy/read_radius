@@ -15,17 +15,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class WallScreen extends ConsumerStatefulWidget {
-  const WallScreen({super.key});
+class HomeScreen extends ConsumerStatefulWidget {
+  const HomeScreen({super.key});
 
-  static const String routeName = 'wall-screen';
-  static const String routePath = '/wall';
+  static const String routeName = 'home-screen';
+  static const String routePath = '/home';
 
   @override
-  ConsumerState<WallScreen> createState() => _WallScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _WallScreenState extends ConsumerState<WallScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   Timer? _debounce;
   String? _pendingActionBookId;
 
