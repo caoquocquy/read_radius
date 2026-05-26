@@ -143,7 +143,8 @@ void main() {
 
     expect(find.text('1984'), findsWidgets);
     expect(find.text('George Orwell'), findsOneWidget);
-    expect(find.text('Update Progress'), findsOneWidget);
+    expect(find.text('Book Details'), findsOneWidget);
+    expect(find.text('About this book'), findsOneWidget);
   });
 
   testWidgets('Tapping shelf book opens details screen', (
@@ -182,6 +183,7 @@ void main() {
 
     expect(find.text('1984'), findsWidgets);
     expect(find.text('George Orwell'), findsOneWidget);
-    expect(find.text('Update Progress'), findsOneWidget);
+    expect(find.text('Book Details'), findsOneWidget);
+    expect(find.text('About this book'), findsOneWidget);
   });
 }
