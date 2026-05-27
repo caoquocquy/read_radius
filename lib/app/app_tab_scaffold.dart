@@ -20,8 +20,8 @@ class AppTabScaffold extends StatelessWidget {
         },
         destinations: const <NavigationDestination>[
           NavigationDestination(
-            icon: Icon(Icons.auto_stories_outlined),
-            selectedIcon: Icon(Icons.auto_stories),
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
             label: 'Home',
           ),
           NavigationDestination(

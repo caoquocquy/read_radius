@@ -5,7 +5,7 @@ class HomeViewModeToggle extends StatelessWidget {
   const HomeViewModeToggle({
     required this.mode,
     required this.onModeSelected,
-    this.compact = false,
+    this.compact = true,
     super.key,
   });
 
