@@ -15,7 +15,9 @@ Follow a feature-first approach. Code should be clean, modular, and split into t
 - `lib/features/profile/`: Profile/account surfaces such as the profile screen and sign-out action.
 - `lib/features/shelves/`: Managing user book statuses (Want to Read, Reading, Completed).
 - `lib/features/reviews/`: Review grids, writing reviews, star ratings.
+- `lib/features/book_details/`: Book details screen, widgets, and providers.
 - `lib/features/following/`: Social features and following/follower surfaces.
+- `lib/features/splash/`: Splash screen and startup initialization.
 
 Layer boundaries must be enforced:
 - Dependency direction is one-way only: `presentation -> domain -> data`.
