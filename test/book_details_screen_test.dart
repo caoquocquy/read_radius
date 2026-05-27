@@ -2,7 +2,7 @@ import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/home/domain/home_book_details.dart';
-import 'package:read_radius/features/home/presentation/book_details_screen.dart';
+import 'package:read_radius/features/book_details/presentation/book_details_screen.dart';
 import 'package:read_radius/features/home/providers/home_providers.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
@@ -123,7 +123,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Reading Progress'), findsOneWidget);
-    expect(find.text('Current progress: 40%'), findsOneWidget);
+    expect(find.text('40%'), findsOneWidget);
     expect(find.text('Update Progress'), findsOneWidget);
   });
 
