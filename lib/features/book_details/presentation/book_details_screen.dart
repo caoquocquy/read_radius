@@ -154,6 +154,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   Future<int?> _pickProgressPercent(int currentPercent) {
     return showModalBottomSheet<int>(
       context: context,
+      constraints: const BoxConstraints.expand(),
       builder: (BuildContext context) {
         return SafeArea(
           child: Padding(
@@ -174,12 +175,16 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   runSpacing: 8,
                   children: <Widget>[
                     for (final int value in <int>[20, 50, 70, 80, 90, 100])
-                      ChoiceChip(
-                        label: Text('$value%'),
-                        selected: currentPercent == value,
-                        onSelected: (_) {
-                          Navigator.of(context).pop(value);
-                        },
+                      SizedBox(
+                        width: 76,
+                        child: ChoiceChip(
+                          label: Text('$value%'),
+                          selected: currentPercent == value,
+                          showCheckmark: false,
+                          onSelected: (_) {
+                            Navigator.of(context).pop(value);
+                          },
+                        ),
                       ),
                   ],
                 ),
