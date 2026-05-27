@@ -7,7 +7,7 @@ import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/home/domain/home_book.dart';
-import 'package:read_radius/features/home/presentation/book_details_screen.dart';
+import 'package:read_radius/features/book_details/presentation/book_details_screen.dart';
 import 'package:read_radius/features/home/presentation/widgets/home_books_collection.dart';
 import 'package:read_radius/features/home/presentation/widgets/home_view_mode_toggle.dart';
 import 'package:read_radius/features/home/providers/home_providers.dart';
