@@ -173,18 +173,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: <Widget>[
-                    for (final int value in <int>[
-                      10,
-                      20,
-                      30,
-                      40,
-                      50,
-                      60,
-                      70,
-                      80,
-                      90,
-                      100,
-                    ])
+                    for (final int value in <int>[20, 50, 70, 80, 90, 100])
                       ChoiceChip(
                         label: Text('$value%'),
                         selected: currentPercent == value,
