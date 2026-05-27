@@ -1,10 +1,13 @@
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
-import 'package:read_radius/features/book_details/presentation/widgets/book_cover.dart';
-import 'package:read_radius/features/book_details/presentation/widgets/meta_chip.dart';
+import 'package:read_radius/features/book_details/presentation/widgets/book_details_header.dart';
+import 'package:read_radius/features/book_details/presentation/widgets/book_meta_section.dart';
+import 'package:read_radius/features/book_details/presentation/widgets/book_preview_button.dart';
 import 'package:read_radius/features/book_details/presentation/widgets/progress_picker_sheet.dart';
 import 'package:read_radius/features/book_details/presentation/widgets/reading_progress_card.dart';
+import 'package:read_radius/features/book_details/presentation/widgets/reviews_section.dart';
+import 'package:read_radius/features/book_details/presentation/widgets/shelf_action_button.dart';
 import 'package:read_radius/features/book_details/presentation/widgets/shelf_status_picker_sheet.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
@@ -260,79 +263,25 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    BookCover(url: details.thumbnailUrl),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            details.title,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            details.authors.isEmpty
-                                ? 'Unknown author'
-                                : details.authors.join(', '),
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                BookDetailsHeader(
+                  thumbnailUrl: details.thumbnailUrl,
+                  title: details.title,
+                  authors: details.authors,
                 ),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: <Widget>[
-                    if (details.publisher != null)
-                      MetaChip(label: 'Publisher', value: details.publisher!),
-                    if (details.publishedDate != null)
-                      MetaChip(
-                        label: 'Published',
-                        value: details.publishedDate!,
-                      ),
-                    if (details.pageCount != null)
-                      MetaChip(
-                        label: 'Pages',
-                        value: details.pageCount!.toString(),
-                      ),
-                  ],
-                ),
-                if (details.categories.isNotEmpty) ...<Widget>[
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: details.categories
-                        .map((String category) => Chip(label: Text(category)))
-                        .toList(growable: false),
-                  ),
-                ],
+                BookMetaSection(details: details),
                 const SizedBox(height: 20),
-                FilledButton.tonalIcon(
-                  onPressed: isActionBusy || statusLoading
-                      ? null
-                      : () {
-                          _handleShelfAction(
-                            authState: authState,
-                            details: details,
-                            currentStatus: currentStatus,
-                          );
-                        },
-                  icon: isActionBusy
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.collections_bookmark_outlined),
-                  label: Text(currentStatus?.actionLabel ?? 'Want to Read'),
+                ShelfActionButton(
+                  currentStatus: currentStatus,
+                  isBusy: isActionBusy,
+                  isDisabled: statusLoading,
+                  onPressed: () {
+                    _handleShelfAction(
+                      authState: authState,
+                      details: details,
+                      currentStatus: currentStatus,
+                    );
+                  },
                 ),
                 if (currentStatus == ShelfStatus.reading) ...<Widget>[
                   const SizedBox(height: 12),
@@ -351,12 +300,8 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                 ],
                 if (details.previewLink != null) ...<Widget>[
                   const SizedBox(height: 8),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      _openPreview(details.previewLink);
-                    },
-                    icon: const Icon(Icons.open_in_new_rounded),
-                    label: const Text('Open Google Books Preview'),
+                  BookPreviewButton(
+                    onPressed: () => _openPreview(details.previewLink),
                   ),
                 ],
                 const SizedBox(height: 20),
@@ -371,18 +316,8 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 24),
-                Text('Reviews', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                const Text(
-                  'Reviews are coming soon. You can already add this book to your shelves.',
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    _handleWriteReview(authState);
-                  },
-                  icon: const Icon(Icons.rate_review_outlined),
-                  label: const Text('Write Review'),
+                ReviewsSection(
+                  onWriteReview: () => _handleWriteReview(authState),
                 ),
               ],
             );
