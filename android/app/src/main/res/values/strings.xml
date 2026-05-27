@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">read_radius</string>
+    <string name="facebook_app_id">27809905748610463</string>
+    <string name="facebook_client_token">e3b0fc4ff3447c46f4ba2990a5877e7b</string>
+    <string name="fb_login_protocol_scheme">fb27809905748610463</string>
+</resources>
