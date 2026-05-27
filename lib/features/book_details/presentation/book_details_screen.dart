@@ -405,11 +405,24 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                             'Reading Progress',
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
-                          const SizedBox(height: 6),
-                          Text('Current progress: $displayedPercent%'),
                           const SizedBox(height: 8),
-                          LinearProgressIndicator(
-                            value: displayedPercent / 100,
+                          Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: LinearProgressIndicator(
+                                    value: displayedPercent / 100,
+                                    minHeight: 6,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '$displayedPercent%',
+                                style: Theme.of(context).textTheme.labelSmall,
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 10),
                           if (isProgressBusy)

@@ -5,7 +5,10 @@ import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/presentation/widgets/user_photo_avatar_button.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/profile/presentation/profile_screen.dart';
+import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
+import 'package:read_radius/features/shelves/domain/shelves_repository.dart';
+import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
 import 'package:read_radius/features/home/domain/home_book.dart';
 import 'package:read_radius/features/book_details/presentation/book_details_screen.dart';
 import 'package:read_radius/features/home/presentation/widgets/home_books_collection.dart';
@@ -134,6 +137,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final AsyncValue<Map<String, ShelfStatus>> statusMapAsync = ref.watch(
       homeBookStatusesProvider,
     );
+    final AsyncValue<ShelvesByStatus> shelvesAsync = ref.watch(
+      shelvesByStatusProvider,
+    );
     final AsyncValue<void> actionState = ref.watch(
       homeShelfActionControllerProvider,
     );
@@ -141,6 +147,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final Map<String, ShelfStatus> statusMap = statusMapAsync.maybeWhen(
       data: (Map<String, ShelfStatus> value) => value,
       orElse: () => <String, ShelfStatus>{},
+    );
+    final Map<String, int> progressMap = shelvesAsync.maybeWhen(
+      data: (ShelvesByStatus shelves) {
+        final Map<String, int> result = <String, int>{};
+        for (final List<ShelfBook> books in shelves.values) {
+          for (final ShelfBook book in books) {
+            if (book.currentPercent != null) {
+              result[book.bookId] = book.currentPercent!;
+            }
+          }
+        }
+        return result;
+      },
+      orElse: () => <String, int>{},
     );
 
     return Scaffold(
@@ -238,6 +258,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     return actionState.isLoading &&
                                         _pendingActionBookId == book.id;
                                   },
+                                  progressPercentBuilder: (HomeBook book) {
+                                    return progressMap[book.id];
+                                  },
                                 ),
                               ),
                             ],
@@ -283,6 +306,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             isActionLoading: (HomeBook book) {
                               return actionState.isLoading &&
                                   _pendingActionBookId == book.id;
+                            },
+                            progressPercentBuilder: (HomeBook book) {
+                              return progressMap[book.id];
                             },
                           );
                         },

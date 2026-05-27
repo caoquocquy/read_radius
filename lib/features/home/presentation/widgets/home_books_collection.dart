@@ -12,6 +12,7 @@ class HomeBooksCollection extends StatelessWidget {
     required this.onActionPressed,
     required this.isActionLoading,
     this.enableThumbnail = true,
+    this.progressPercentBuilder,
     super.key,
   });
 
@@ -22,6 +23,7 @@ class HomeBooksCollection extends StatelessWidget {
   final ValueChanged<HomeBook> onActionPressed;
   final bool Function(HomeBook book) isActionLoading;
   final bool enableThumbnail;
+  final int? Function(HomeBook book)? progressPercentBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -37,31 +39,66 @@ class HomeBooksCollection extends StatelessWidget {
               ? 'Unknown author'
               : book.authors.join(', ');
 
+          final int? progressPercent = progressPercentBuilder != null
+              ? progressPercentBuilder!(book)
+              : null;
+
           return Card(
-            child: ListTile(
-              onTap: () {
-                onBookTap(book);
-              },
-              leading: _BookThumbnail(
-                url: book.thumbnailUrl,
-                enabled: enableThumbnail,
-              ),
-              title: Text(book.title),
-              subtitle: Text(subtitle),
-              trailing: FilledButton.tonal(
-                onPressed: isActionLoading(book)
-                    ? null
-                    : () {
-                        onActionPressed(book);
-                      },
-                child: isActionLoading(book)
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(actionLabelBuilder(book)),
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  onTap: () {
+                    onBookTap(book);
+                  },
+                  leading: _BookThumbnail(
+                    url: book.thumbnailUrl,
+                    enabled: enableThumbnail,
+                  ),
+                  title: Text(book.title),
+                  subtitle: Text(subtitle),
+                  trailing: FilledButton.tonal(
+                    onPressed: isActionLoading(book)
+                        ? null
+                        : () {
+                            onActionPressed(book);
+                          },
+                    child: isActionLoading(book)
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(actionLabelBuilder(book)),
+                  ),
+                ),
+                if (progressPercent != null)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 72,
+                      right: 12,
+                      bottom: 12,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: progressPercent / 100.0,
+                              minHeight: 6,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '$progressPercent%',
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
           );
         },
@@ -93,6 +130,10 @@ class HomeBooksCollection extends StatelessWidget {
             final String subtitle = book.authors.isEmpty
                 ? 'Unknown author'
                 : book.authors.join(', ');
+
+            final int? progressPercent = progressPercentBuilder != null
+                ? progressPercentBuilder!(book)
+                : null;
 
             return Card(
               clipBehavior: Clip.antiAlias,
@@ -139,6 +180,27 @@ class HomeBooksCollection extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (progressPercent != null) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: progressPercent / 100.0,
+                                minHeight: 6,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '$progressPercent%',
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     FilledButton.tonal(
                       onPressed: isActionLoading(book)

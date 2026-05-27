@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
+import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:flutter/material.dart';
 
 class ShelvesSection extends StatelessWidget {
@@ -35,21 +36,53 @@ class ShelvesSection extends StatelessWidget {
                 : book.authors.join(', ');
 
             return Card(
-              child: ListTile(
-                onTap: () {
-                  onBookTap(book);
-                },
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                leading: _ShelfBookThumbnail(url: book.thumbnailUrl),
-                title: Text(book.title),
-                subtitle: Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    onTap: () {
+                      onBookTap(book);
+                    },
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    leading: _ShelfBookThumbnail(url: book.thumbnailUrl),
+                    title: Text(book.title),
+                    subtitle: Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (book.status == ShelfStatus.reading &&
+                      book.currentPercent != null)
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 12,
+                        right: 12,
+                        bottom: 12,
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: book.currentPercent! / 100.0,
+                                minHeight: 6,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${book.currentPercent}%',
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             );
           }),
