@@ -8,16 +8,7 @@
 - **Book Data**: External data is fetched directly from the Google Books API. Do not pre-populate Firestore with millions of books.
 
 ## Architecture & Folder Structure
-Follow a feature-first approach. Code should be clean, modular, and split into the following directories under `lib/`:
-- `lib/core/`: Common themes, network clients, constants, utilities.
-- `lib/features/auth/`: Facebook authentication widgets, services, and Riverpod providers.
-- `lib/features/home/`: Public search UI, Google Books API client, book grids.
-- `lib/features/profile/`: Profile/account surfaces such as the profile screen and sign-out action.
-- `lib/features/shelves/`: Managing user book statuses (Want to Read, Reading, Completed).
-- `lib/features/reviews/`: Review grids, writing reviews, star ratings.
-- `lib/features/book_details/`: Book details screen, widgets, and providers.
-- `lib/features/following/`: Social features and following/follower surfaces.
-- `lib/features/splash/`: Splash screen and startup initialization.
+Follow a feature-first approach. Code should be clean, modular, and organized into features under `lib/features/`. Each feature (e.g. `auth`, `home`, `book_details`, `shelves`, `reviews`, `following`, `profile`, `splash`) owns its complete slice of the app. Shared/common code lives under `lib/core/` (themes, network clients, constants, utilities).
 
 Layer boundaries must be enforced:
 - Dependency direction is one-way only: `presentation -> domain -> data`.
