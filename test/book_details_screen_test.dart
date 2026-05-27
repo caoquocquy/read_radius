@@ -1,9 +1,9 @@
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/presentation/auth_guard_sheet.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
+import 'package:read_radius/features/book_details/providers/book_details_providers.dart';
 import 'package:read_radius/features/home/domain/home_book_details.dart';
 import 'package:read_radius/features/book_details/presentation/book_details_screen.dart';
-import 'package:read_radius/features/home/providers/home_providers.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +32,15 @@ void main() {
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
           ),
-          homeBookDetailsProvider(
+          bookDetailsProvider(
             'book-1',
           ).overrideWith((Ref ref) async => details),
-          homeBookStatusProvider(
+          bookShelfStatusProvider(
             'book-1',
           ).overrideWith((Ref ref) async => null),
-          homeShelfBookProvider('book-1').overrideWith((Ref ref) async => null),
+          bookShelfEntryProvider(
+            'book-1',
+          ).overrideWith((Ref ref) async => null),
         ],
         child: const MaterialApp(home: BookDetailsScreen(bookId: 'book-1')),
       ),
@@ -71,13 +73,15 @@ void main() {
           authSessionProvider.overrideWith(
             (Ref ref) => Stream<AuthSessionState>.value(AuthSessionState.guest),
           ),
-          homeBookDetailsProvider(
+          bookDetailsProvider(
             'book-1',
           ).overrideWith((Ref ref) async => details),
-          homeBookStatusProvider(
+          bookShelfStatusProvider(
             'book-1',
           ).overrideWith((Ref ref) async => null),
-          homeShelfBookProvider('book-1').overrideWith((Ref ref) async => null),
+          bookShelfEntryProvider(
+            'book-1',
+          ).overrideWith((Ref ref) async => null),
         ],
         child: const MaterialApp(home: BookDetailsScreen(bookId: 'book-1')),
       ),
@@ -101,13 +105,13 @@ void main() {
             (Ref ref) =>
                 Stream<AuthSessionState>.value(AuthSessionState.authenticated),
           ),
-          homeBookDetailsProvider(
+          bookDetailsProvider(
             'book-1',
           ).overrideWith((Ref ref) async => details),
-          homeBookStatusProvider(
+          bookShelfStatusProvider(
             'book-1',
           ).overrideWith((Ref ref) async => ShelfStatus.reading),
-          homeShelfBookProvider('book-1').overrideWith(
+          bookShelfEntryProvider('book-1').overrideWith(
             (Ref ref) async => const ShelfBook(
               bookId: 'book-1',
               title: 'Brave New World',
@@ -137,13 +141,15 @@ void main() {
             (Ref ref) =>
                 Stream<AuthSessionState>.value(AuthSessionState.authenticated),
           ),
-          homeBookDetailsProvider(
+          bookDetailsProvider(
             'book-1',
           ).overrideWith((Ref ref) async => details),
-          homeBookStatusProvider(
+          bookShelfStatusProvider(
             'book-1',
           ).overrideWith((Ref ref) async => null),
-          homeShelfBookProvider('book-1').overrideWith((Ref ref) async => null),
+          bookShelfEntryProvider(
+            'book-1',
+          ).overrideWith((Ref ref) async => null),
         ],
         child: const MaterialApp(home: BookDetailsScreen(bookId: 'book-1')),
       ),

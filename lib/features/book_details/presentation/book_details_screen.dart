@@ -9,12 +9,12 @@ import 'package:read_radius/features/book_details/presentation/widgets/reading_p
 import 'package:read_radius/features/book_details/presentation/widgets/reviews_section.dart';
 import 'package:read_radius/features/book_details/presentation/widgets/shelf_action_button.dart';
 import 'package:read_radius/features/book_details/presentation/widgets/shelf_status_picker_sheet.dart';
+import 'package:read_radius/features/book_details/providers/book_details_providers.dart';
 import 'package:read_radius/features/shelves/domain/shelf_book.dart';
 import 'package:read_radius/features/shelves/domain/shelf_status.dart';
 import 'package:read_radius/features/shelves/providers/shelves_providers.dart';
 import 'package:read_radius/features/home/domain/home_book.dart';
 import 'package:read_radius/features/home/domain/home_book_details.dart';
-import 'package:read_radius/features/home/providers/home_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -66,7 +66,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
 
     try {
       await ref
-          .read(homeShelfActionControllerProvider.notifier)
+          .read(bookShelfActionControllerProvider.notifier)
           .setBookStatus(book: _toHomeBook(details), status: selectedStatus);
 
       if (!mounted) {
@@ -161,14 +161,14 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
 
     try {
       final ShelfStatus nextStatus = await ref
-          .read(homeReadingProgressControllerProvider.notifier)
+          .read(bookReadingProgressControllerProvider.notifier)
           .updateProgress(details: details, currentPercent: selectedPercent);
 
       final ShelfBook? refreshedShelfBook = await ref.refresh(
-        homeShelfBookProvider(details.id).future,
+        bookShelfEntryProvider(details.id).future,
       );
       final ShelfStatus? refreshedStatus = await ref.refresh(
-        homeBookStatusProvider(details.id).future,
+        bookShelfStatusProvider(details.id).future,
       );
       final Map<ShelfStatus, List<ShelfBook>> refreshedShelves = await ref
           .refresh(shelvesByStatusProvider.future);
@@ -227,13 +227,13 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
     );
 
     final AsyncValue<HomeBookDetails> detailsAsync = ref.watch(
-      homeBookDetailsProvider(widget.bookId),
+      bookDetailsProvider(widget.bookId),
     );
     final AsyncValue<ShelfStatus?> statusAsync = ref.watch(
-      homeBookStatusProvider(widget.bookId),
+      bookShelfStatusProvider(widget.bookId),
     );
     final AsyncValue<ShelfBook?> shelfBookAsync = ref.watch(
-      homeShelfBookProvider(widget.bookId),
+      bookShelfEntryProvider(widget.bookId),
     );
 
     return Scaffold(
@@ -252,10 +252,10 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
             final bool statusLoading = statusAsync.isLoading;
             final bool isActionBusy =
                 _isSubmittingShelfAction ||
-                ref.watch(homeShelfActionControllerProvider).isLoading;
+                ref.watch(bookShelfActionControllerProvider).isLoading;
             final bool isProgressBusy =
                 _isSubmittingProgress ||
-                ref.watch(homeReadingProgressControllerProvider).isLoading;
+                ref.watch(bookReadingProgressControllerProvider).isLoading;
             final int displayedPercent = (shelfBook?.currentPercent ?? 0)
                 .clamp(0, 100)
                 .toInt();

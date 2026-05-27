@@ -23,6 +23,9 @@ Layer boundaries must be enforced:
 - Domain layer defines entities, repository contracts, and use-case logic.
 - Data layer implements repository contracts, DTO mapping, and remote/local data sources.
 - Do not leak DTOs, raw maps, or Firestore document data into presentation widgets.
+- **Every feature must have all 4 layers present**: `data/`, `domain/`, `providers/`, `presentation/`. If a layer is empty, add a `.gitkeep` file to maintain the structure.
+- **Providers belong to their own feature's `providers/` directory.** Do not define providers for feature A inside feature B's provider file. For example: `book_details` providers must live in `lib/features/book_details/providers/`, not in `lib/features/home/providers/`.
+- **Avoid feature B depending on feature A's providers** when the logic is specific to feature B. Move consumed providers into the consuming feature. Shared cross-cutting providers (e.g. `auth`, `firestore`) can remain as common dependencies.
 
 ## Data & Database Design Constraints
 1. **Unauthenticated Public Views**: Guest users can access the app without a login wall. They can search books, view book profiles, and read reviews.
