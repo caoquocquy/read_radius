@@ -1,88 +1,41 @@
 # ReadRadius Copilot Instructions
 
-## Technology Stack & Constraints
-- **Framework**: Flutter (latest stable, Material 3 design system).
-- **State Management**: Riverpod (latest stable, using `@riverpod` annotations and `build_runner` code generation). Never use old legacy Riverpod syntax.
-- **Backend & Database**: Firebase (Firebase Auth, Cloud Firestore).
-- **Authentication**: Facebook Login ONLY via `flutter_facebook_auth`. No email/password or anonymous login.
-- **Book Data**: External data is fetched directly from the Google Books API. Do not pre-populate Firestore with millions of books.
+## Stack
+- **Framework**: Flutter (latest stable, Material 3).
+- **State Management**: Riverpod (latest stable, `@riverpod` + `build_runner`). Never use legacy syntax or `ChangeNotifierProvider`. `StateProvider` is allowed for simple ephemeral UI state.
+- **Backend**: Firebase (Auth, Cloud Firestore).
+- **Auth**: Facebook Login ONLY via `flutter_facebook_auth`. No email/password or anonymous.
+- **Book Data**: Fetched from Google Books API. Do not pre-populate Firestore.
 
-## Architecture & Folder Structure
-Follow a feature-first approach. Code should be clean, modular, and organized into features under `lib/features/`. Each feature (e.g. `auth`, `home`, `book_details`, `shelves`, `reviews`, `following`, `profile`, `splash`) owns its complete slice of the app. Shared/common code lives under `lib/core/` (themes, network clients, constants, utilities).
+## Architecture
+Feature-first under `lib/features/`. Shared code (themes, network clients, constants, utilities) under `lib/core/`.
 
-Layer boundaries must be enforced:
-- Dependency direction is one-way only: `presentation -> domain -> data`.
-- Presentation layer must not call Firebase SDKs, Firestore directly, or HTTP clients.
-- Domain layer defines entities, repository contracts, and use-case logic.
-- Data layer implements repository contracts, DTO mapping, and remote/local data sources.
-- Do not leak DTOs, raw maps, or Firestore document data into presentation widgets.
-- **Every feature must have all 4 layers present**: `data/`, `domain/`, `providers/`, `presentation/`. If a layer is empty, add a `.gitkeep` file to maintain the structure.
-- **Providers belong to their own feature's `providers/` directory.** Do not define providers for feature A inside feature B's provider file. For example: `book_details` providers must live in `lib/features/book_details/providers/`, not in `lib/features/home/providers/`.
-- **Avoid feature B depending on feature A's providers** when the logic is specific to feature B. Move consumed providers into the consuming feature. Shared cross-cutting providers (e.g. `auth`, `firestore`) can remain as common dependencies.
+Every feature must have all 4 layers: `data/`, `domain/`, `providers/`, `presentation/` (add `.gitkeep` for empty layers). Dependency direction: `presentation -> domain -> data`. Presentation must not call SDKs, Firestore, or HTTP clients directly. Do not leak DTOs or raw maps into widgets.
 
-## Data & Database Design Constraints
-1. **Unauthenticated Public Views**: Guest users can access the app without a login wall. They can search books, view book profiles, and read reviews.
-2. **Protected Actions**: Writing reviews or adding books to shelves requires authentication. Trigger an elegant `AuthGuard` bottom sheet prompt to "Continue with Facebook" if a guest tries these actions.
-3. **Firestore Collections**:
-   - `/users/{userId}`: Profiles.
-   - `/books/{bookId}`: Created ONLY when a book is first shelved or reviewed. Uses Google Books API ID as the Document ID.
-   - `/reviews/{reviewId}`: Root collection containing `bookId` and `userId` for quick querying.
-   - `/userBooks/{userId_bookId}`: Composite ID documents managing user reading statuses (`want_to_read`, `reading`, `completed`) and optional reading progress fields.
-   - `userBooks` progress fields are **percent-only**. Allowed progress keys are `currentPercent` (0-100) and `progressUpdatedAt`.
-   - Do not introduce `currentPage` or `totalPages` in models, writes, or rules.
-   - `/userFollows/{followerId_followeeId}`: Directed follow edges containing `followerId`, `followeeId`, `createdAt`, and optional `updatedAt`.
-4. **Firestore Security Rule Intent**:
-   - Guests can read public browse content (`/books` and public review content) but cannot write user-owned records.
-   - `/users/{userId}` writes are owner-only (`request.auth.uid == userId`).
-   - `/userBooks/{userId_bookId}` writes are owner-only and must match the authenticated user.
-   - `/userBooks/{userId_bookId}` allowed keys: `userId`, `bookId`, `status`, `currentPercent`, `progressUpdatedAt`, `createdAt`, `updatedAt`.
-   - `currentPercent` must be an integer between 0 and 100 when present.
-   - `/reviews/{reviewId}` create, update, and delete are owner-only; public reads are allowed.
-   - `/userFollows/{followerId_followeeId}` create/delete are follower-only (`request.auth.uid == followerId`), updates are disallowed, and self-follow is denied.
-   - Deny all writes when unauthenticated.
+Providers belong to their own feature's `providers/` directory. Avoid cross-feature provider dependencies for feature-specific logic; move consumed providers into the consuming feature instead. Shared cross-cutting providers (e.g. `auth`, `firestore`) are fine as common deps.
 
-## Firebase CLI Project Config
-- The repository now includes Firebase deploy config files:
-  - `firebase.json` for Firestore rules/indexes mapping.
-  - `.firebaserc` with default project alias `readradius-c499b`.
-- Prefer these commands for rule/index publishing from repo root:
-  - `firebase deploy --only firestore:rules`
-  - `firebase deploy --only firestore:indexes`
-- Keep security rules and index definitions source-controlled and deployed from these files.
+## Data & Database
+- Guests can browse/search books and read reviews without login.
+- Writing reviews or adding books to shelves requires auth. Prompt guests with `AuthGuardSheet`.
+- **Firestore Collections**:
+  - `/users/{userId}` — profiles, owner-only write.
+  - `/books/{bookId}` — created when first shelved/reviewed; Google Books API ID as doc ID.
+  - `/reviews/{reviewId}` — root collection, public read, owner-only write.
+  - `/userBooks/{userId_bookId}` — composite ID, owner-only write. Allowed keys: `userId`, `bookId`, `status` (`want_to_read`, `reading`, `completed`), `currentPercent` (int 0-100), `progressUpdatedAt`, `createdAt`, `updatedAt`. No `currentPage`/`totalPages`.
+  - `/userFollows/{followerId_followeeId}` — directed follow edges. Create/delete follower-only, updates disallowed, self-follow denied.
+- Reading progress UX is percent-driven (progress bar + quick-select 10/20/.../100), not page numbers.
+- Deny all writes when unauthenticated.
 
-## UX Behavior Constraints
-- Keep protected write actions (shelf mutations, reviews) behind `AuthGuardSheet` for guests.
-- Keep sign-out in the Profile screen under `lib/features/profile/`, not inline in wall/feed screens.
-- Avatar entry behavior: guest users should be prompted to authenticate; authenticated users may navigate to Profile.
-- Reading progress UX is percent-driven: show progress bar + quick-select percentage actions (10, 20, ... 100), not manual page-number input.
+## Firebase CLI
+Config files in repo root: `firebase.json`, `.firebaserc` (project `readradius-c499b`). Deploy via:
+- `firebase deploy --only firestore:rules`
+- `firebase deploy --only firestore:indexes`
 
-## Code Generation & Style Guidelines
-- **Riverpod**: Always use `@riverpod` on classes extending `_$ClassName` or functions for app/business state. Avoid `ChangeNotifierProvider`. `StateProvider` is allowed only for simple ephemeral UI-only state.
-- **Async Data**: Always handle UI states safely using Riverpod's `.when(data: ..., error: ..., loading: ...)` pattern.
-- **Asynchronous Code**: Prefer `async/await` syntax over `.then()` callbacks.
-- **State Mutation**: Keep state immutable. Use copyWith patterns for data models.
-- **Error Handling**: Wrap all Firebase, authentication, and network API calls in clean `try-catch` blocks with user-friendly logs or UI snackbars.
+## Style
+- Use `@riverpod` on classes/functions. Use `.when(data:, error:, loading:)`. Prefer `async/await`. Keep state immutable (copyWith). Wrap Firebase/network calls in try-catch with user-friendly feedback.
+- Files should be focused (single responsibility). Target: widgets 100-250 lines, screens ≤400, domain/data 150-300. Generated files exempt. Extract reusable widgets early.
 
-## File Length & Split Guidelines
-- Prefer small, focused files based on single responsibility, not strict line-count limits.
-- **Target file sizes**:
-   - Simple widget files: 100-250 lines.
-   - Complex screen files: keep under 300-400 lines when practical.
-   - Domain/data/service files: 150-300 lines.
-   - Generated files are exempt.
-- **Split a file when**:
-   - It has more than one responsibility.
-   - Build methods become deeply nested or hard to scan.
-   - UI blocks are repeated and can be extracted.
-   - Business logic is mixed into presentation code.
-   - The file becomes hard to review in one pass.
-- **Flutter + Riverpod practice**:
-   - Keep business logic in providers/use-cases, not inside widget build trees.
-   - Keep presentation/domain/data boundaries clear.
-   - Extract reusable widgets early to keep screens maintainable.
-
-## Quality Gate for Every Change
-- Run `flutter analyze` and keep touched code free of analyzer errors.
-- Run `flutter test` for impacted areas before finishing.
-- Any behavior change must include matching tests (unit/widget; integration when relevant).
-- If `firestore.rules` or `firestore.indexes.json` changes, deploy the updated artifact via Firebase CLI before closing the task.
+## Quality Gate
+- `flutter analyze` — no new errors.
+- `flutter test` — impacted areas covered.
+- If `firestore.rules` or `firestore.indexes.json` changes, deploy before closing.
