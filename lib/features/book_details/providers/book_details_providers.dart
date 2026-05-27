@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/home/domain/home_book.dart';
@@ -44,8 +43,7 @@ Future<ShelfStatus?> bookShelfStatus(Ref ref, String bookId) async {
     return null;
   }
 
-  final User? user = FirebaseAuth.instance.currentUser;
-  final String? userId = user?.uid;
+  final String? userId = ref.watch(authUserIdProvider);
   if (userId == null || userId.isEmpty) {
     return null;
   }
@@ -73,8 +71,7 @@ Future<ShelfBook?> bookShelfEntry(Ref ref, String bookId) async {
     return null;
   }
 
-  final User? user = FirebaseAuth.instance.currentUser;
-  final String? userId = user?.uid;
+  final String? userId = ref.watch(authUserIdProvider);
   if (userId == null || userId.isEmpty) {
     return null;
   }
@@ -112,8 +109,7 @@ class BookShelfActionController extends _$BookShelfActionController {
         throw Exception('Sign in is required to manage shelves.');
       }
 
-      final User? user = FirebaseAuth.instance.currentUser;
-      final String? userId = user?.uid;
+      final String? userId = ref.read(authUserIdProvider);
       if (userId == null || userId.isEmpty) {
         throw Exception('Could not resolve authenticated user.');
       }
@@ -175,8 +171,7 @@ class BookReadingProgressController extends _$BookReadingProgressController {
         throw Exception('Sign in is required to update reading progress.');
       }
 
-      final User? user = FirebaseAuth.instance.currentUser;
-      final String? userId = user?.uid;
+      final String? userId = ref.read(authUserIdProvider);
       if (userId == null || userId.isEmpty) {
         throw Exception('Could not resolve authenticated user.');
       }

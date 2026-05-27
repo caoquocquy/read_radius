@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/home/data/example_home_repository.dart';
@@ -99,8 +98,7 @@ class HomeShelfActionController extends _$HomeShelfActionController {
       throw Exception('You must be signed in to save books to your shelves.');
     }
 
-    final User? user = FirebaseAuth.instance.currentUser;
-    final String? userId = user?.uid;
+    final String? userId = ref.watch(authUserIdProvider);
     if (userId == null || userId.isEmpty) {
       throw Exception('User not found.');
     }
@@ -131,8 +129,7 @@ Future<Map<String, ShelfStatus>> homeBookStatuses(Ref ref) async {
     return <String, ShelfStatus>{};
   }
 
-  final User? user = FirebaseAuth.instance.currentUser;
-  final String? userId = user?.uid;
+  final String? userId = ref.watch(authUserIdProvider);
   if (userId == null || userId.isEmpty) {
     return <String, ShelfStatus>{};
   }

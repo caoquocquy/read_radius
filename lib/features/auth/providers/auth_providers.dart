@@ -24,6 +24,12 @@ final StreamProvider<String?> authUserPhotoUrlProvider =
     });
 
 @riverpod
+String? authUserId(Ref ref) {
+  final AuthRepository repo = ref.watch(authRepositoryProvider);
+  return repo.currentUserId;
+}
+
+@riverpod
 class AuthController extends _$AuthController {
   @override
   Future<void> build() async {

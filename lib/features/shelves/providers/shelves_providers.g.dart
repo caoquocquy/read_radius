@@ -93,4 +93,4 @@ final class ShelvesByStatusProvider
   }
 }
 
-String _$shelvesByStatusHash() => r'26648d5efcaf3f9e772adb2b2427baf1d4aa489f';
+String _$shelvesByStatusHash() => r'5149bd9e48316e5c1a71585413309d9cf3bf90d8';

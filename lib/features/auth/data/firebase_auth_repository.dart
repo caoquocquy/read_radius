@@ -33,6 +33,9 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
+  String? get currentUserId => _firebaseAuth.currentUser?.uid;
+
+  @override
   Future<void> signInWithFacebook() async {
     final String rawNonce = _generateRawNonce();
     final String loginNonce = _sha256OfString(rawNonce);

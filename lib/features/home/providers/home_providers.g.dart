@@ -354,7 +354,7 @@ final class HomeShelfActionControllerProvider
 }
 
 String _$homeShelfActionControllerHash() =>
-    r'5d616fd4884bcab12a545fde41947274d5b571d4';
+    r'2fc2ff11ed66ac33b571086ac5c5e99092c15088';
 
 abstract class _$HomeShelfActionController extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -413,4 +413,4 @@ final class HomeBookStatusesProvider
   }
 }
 
-String _$homeBookStatusesHash() => r'a23cf4bd0c1b706729b68c849be62c7d88a420af';
+String _$homeBookStatusesHash() => r'b85ad8222c8d57a750c322efcf7347b37955f2f2';

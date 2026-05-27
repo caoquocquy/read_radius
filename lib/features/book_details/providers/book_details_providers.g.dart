@@ -139,7 +139,7 @@ final class BookShelfStatusProvider
   }
 }
 
-String _$bookShelfStatusHash() => r'a82ed6ad3a93ee64969472c87282ec173d7ab3ca';
+String _$bookShelfStatusHash() => r'826425117401ce930b49a011ae0c4e91e0eacdd1';
 
 final class BookShelfStatusFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ShelfStatus?>, String> {
@@ -213,7 +213,7 @@ final class BookShelfEntryProvider
   }
 }
 
-String _$bookShelfEntryHash() => r'0cac0ca38c18253c9417d7745bb82630ee1f2a33';
+String _$bookShelfEntryHash() => r'14286e6b736ecc8a6eb306cc3d55500cd6227bd5';
 
 final class BookShelfEntryFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ShelfBook?>, String> {
@@ -258,7 +258,7 @@ final class BookShelfActionControllerProvider
 }
 
 String _$bookShelfActionControllerHash() =>
-    r'd0194647194bf8f68bffb8a75d3f4178d665a0e4';
+    r'8d201cf07c3cc930f55fbf838ddd0451023e658a';
 
 abstract class _$BookShelfActionController extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -304,7 +304,7 @@ final class BookReadingProgressControllerProvider
 }
 
 String _$bookReadingProgressControllerHash() =>
-    r'ba202b733c125facd775975f34c6e2be15af5692';
+    r'36809be13c6e0b8e433a2182cc8fe9532c56b2b8';
 
 abstract class _$BookReadingProgressController extends $AsyncNotifier<void> {
   FutureOr<void> build();

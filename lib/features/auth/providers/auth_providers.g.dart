@@ -89,6 +89,47 @@ final class AuthSessionProvider
 
 String _$authSessionHash() => r'5961ef4304e6d0ef4ea77c2cf3c16001383cbebe';
 
+@ProviderFor(authUserId)
+final authUserIdProvider = AuthUserIdProvider._();
+
+final class AuthUserIdProvider
+    extends $FunctionalProvider<String?, String?, String?>
+    with $Provider<String?> {
+  AuthUserIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authUserIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authUserIdHash();
+
+  @$internal
+  @override
+  $ProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  String? create(Ref ref) {
+    return authUserId(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$authUserIdHash() => r'c5362da86f0b3a3879217d3bc01fafc84ab797e9';
+
 @ProviderFor(AuthController)
 final authControllerProvider = AuthControllerProvider._();
 

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:read_radius/features/auth/domain/auth_session_state.dart';
 import 'package:read_radius/features/auth/providers/auth_providers.dart';
 import 'package:read_radius/features/shelves/data/firestore_shelves_repository.dart';
@@ -20,8 +19,7 @@ Future<ShelvesByStatus> shelvesByStatus(Ref ref) async {
     return emptyShelvesByStatus();
   }
 
-  final User? user = FirebaseAuth.instance.currentUser;
-  final String? userId = user?.uid;
+  final String? userId = ref.watch(authUserIdProvider);
   if (userId == null || userId.isEmpty) {
     return emptyShelvesByStatus();
   }
