@@ -99,13 +99,15 @@ void main() {
     expect(find.byKey(const Key('home-grid-view')), findsOneWidget);
     expect(find.byKey(const Key('home-list-view')), findsNothing);
 
-    await tester.tap(find.text('List'));
+    // Toggle to list view by tapping the list icon on the segmented button
+    await tester.tap(find.byIcon(Icons.view_list_rounded));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('home-list-view')), findsOneWidget);
     expect(find.byKey(const Key('home-grid-view')), findsNothing);
 
-    await tester.tap(find.text('Grid'));
+    // Toggle back to grid view by tapping the grid icon
+    await tester.tap(find.byIcon(Icons.grid_view_rounded));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('home-grid-view')), findsOneWidget);
